@@ -9,7 +9,9 @@ import (
     "os"
     "time"
 
-    "github.com/spf13/cobra"    
+    "github.com/spf13/cobra"
+    
+    app "github.com/latelee/myproject/app2/app"
 )
 
 var debug, deamon bool
@@ -38,12 +40,13 @@ func NewCommand() *cobra.Command {
     Version: "1.0",
 	Run: func(cmd *cobra.Command, args []string) {
         fmt.Println("test cobra")
-        fmt.Println("debug: ", debug, "deamon: ", deamon, "port:", port)
-    
+        //fmt.Println("debug: ", debug, "deamon: ", deamon, "port:", port)
+        // 执行业务程序，可用参数传递，或在内部读取配置文件
+        app.Demo(debug)
 	},
     }
     
-    // 使用默认的输出方式
+    // 使用默认的输出方式，不用自定义的形式
     /*
     rootCmd.SetUsageFunc(func(cmd *cobra.Command) error {
 		fmt.Fprintf(cmd.OutOrStderr(), "usage: %s\n\n", cmd.UseLine())
