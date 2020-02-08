@@ -1,50 +1,76 @@
+/*
+TODO 短参数形式
+*/
+
 package main
 
 import (
     "fmt"
     "os"
+    "time"
 
     "github.com/spf13/cobra"    
 )
 
-var KubeEdgeVersion    string
-var DockerVersion      string
+var debug, deamon bool
+var port int
+var timeout time.Duration
 
-func NewCloudCoreCommand() *cobra.Command {
-	cmd := &cobra.Command{
-		Use: "app.exe",
-        Short: `This is short msg`,
-		Long: `This is long usage message`,
-		Run: func(cmd *cobra.Command, args []string) {
-            fmt.Println("test of cobra")
-            fmt.Println(DockerVersion)
-		},
-	}
+var (
+	rootLong = `
+    long description.
+    A demo app using cobra command
 
-	usageFmt := "Usage:\n  %s\n"
-	cmd.SetUsageFunc(func(cmd *cobra.Command) error {
-		fmt.Fprintf(cmd.OutOrStderr(), usageFmt, cmd.UseLine())
+`
+	rootExample = `
+    example message.
+    demo -d -c -p 10086
+`
+)
+
+
+func NewCommand() *cobra.Command {
+    rootCmd := &cobra.Command{
+	Use:   "demo",
+	Short: "A demo app",
+	Long: rootLong,
+    Example: rootExample,
+    Version: "1.0",
+	Run: func(cmd *cobra.Command, args []string) {
+        fmt.Println("test cobra")
+        fmt.Println("debug: ", debug, "deamon: ", deamon, "port:", port)
+    
+	},
+    }
+    
+    // 使用默认的输出方式
+    /*
+    rootCmd.SetUsageFunc(func(cmd *cobra.Command) error {
+		fmt.Fprintf(cmd.OutOrStderr(), "usage: %s\n\n", cmd.UseLine())
 		return nil
 	})
-	cmd.SetHelpFunc(func(cmd *cobra.Command, args []string) {
-		fmt.Fprintf(cmd.OutOrStdout(), "%s\n\n"+usageFmt, cmd.Long, cmd.UseLine())
+	rootCmd.SetHelpFunc(func(cmd *cobra.Command, args []string) {
+		fmt.Fprintf(cmd.OutOrStdout(), "help: %s\n\n%s\n\n", cmd.Long, cmd.UseLine())
 	})
-
-    cmd.ResetFlags()
-
-    // 命令参数，保存的值，参数名，默认参数，说明
-	cmd.Flags().StringVar(&DockerVersion, "docker", "18.08",
-		"Use this key to download and use the required Docker version")
-
-
-	return cmd
+    */
+    
+    InitFlags(rootCmd)
+    
+    return rootCmd
 }
 
+func InitFlags(cmd *cobra.Command) {
+	cmd.PersistentFlags().BoolVar(&debug, "debug", false, "debug mode")
+    cmd.PersistentFlags().BoolVar(&deamon, "d", false, "deamon mode")
+    
+	cmd.PersistentFlags().IntVar(&port, "p", 89, "port number")
+    cmd.PersistentFlags().DurationVar(&timeout, "timeout", 10*time.Second, "http request timeout")
+	
+}
 
 func main() {
-	command := NewCloudCoreCommand()
-
-	if err := command.Execute(); err != nil {
+	cmd := NewCommand()
+	if err := cmd.Execute(); err != nil {
 		os.Exit(1)
 	}
 }
