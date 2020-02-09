@@ -1,5 +1,9 @@
 /*
-TODO 短参数形式
+
+BoolVar  长参数形式
+BoolVarP 长短参数形式
+
+PersistentFlags() 和 Flags() 在简单应用场合并无差别
 */
 
 package main
@@ -64,10 +68,10 @@ func NewCommand() *cobra.Command {
 
 func InitFlags(cmd *cobra.Command) {
 	cmd.PersistentFlags().BoolVar(&debug, "debug", false, "debug mode")
-    cmd.PersistentFlags().BoolVar(&deamon, "d", false, "deamon mode")
+    cmd.PersistentFlags().BoolVarP(&deamon, "daemon", "d", false, "deamon mode")
     
-	cmd.PersistentFlags().IntVar(&port, "p", 89, "port number")
-    cmd.PersistentFlags().DurationVar(&timeout, "timeout", 10*time.Second, "http request timeout")
+	cmd.PersistentFlags().IntVarP(&port, "port", "p", 89, "port number")
+    cmd.PersistentFlags().DurationVarP(&timeout, "timeout", "t", 10*time.Second, "http request timeout")
 	
 }
 
