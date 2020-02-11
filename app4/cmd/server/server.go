@@ -13,6 +13,10 @@ type server struct {
     // 后可加其它字段
 }
 
+func init() {
+    core.Register(newServer(true))
+}
+
 func newServer(enable bool) *server {
     return &server{
         enable: enable,

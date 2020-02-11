@@ -13,6 +13,10 @@ type update struct {
     // 后可加其它字段
 }
 
+func init() {
+    core.Register(newUpdate(true))
+}
+
 func newUpdate(enable bool) *update {
     return &update{
         enable: enable,

@@ -15,6 +15,10 @@ type ginTest1 struct {
     // 后可加其它字段
 }
 
+func init() {
+    core.Register(newginTest1(true))
+}
+
 func newginTest1(enable bool) *ginTest1 {
     return &ginTest1{
         enable: enable,

@@ -19,6 +19,10 @@ type udpServer struct {
     // 后可加其它字段
 }
 
+func init() {
+    core.Register(newudpServer(true))
+}
+
 func newudpServer(enable bool) *udpServer {
     return &udpServer{
         enable: enable,

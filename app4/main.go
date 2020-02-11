@@ -9,13 +9,12 @@ import (
     "github.com/spf13/cobra"
     "github.com/kubeedge/beehive/pkg/core"
     "k8s.io/klog"
-    
-    _ "github.com/latelee/myproject/app4/cmd"
-    "github.com/latelee/myproject/app4/cmd/server"
-    "github.com/latelee/myproject/app4/cmd/update"
-    "github.com/latelee/myproject/app4/cmd/gin1"
-    "github.com/latelee/myproject/app4/cmd/udpp"
-    "github.com/latelee/myproject/app4/cmd/tcpp"
+
+    _ "github.com/latelee/myproject/app4/cmd/server"
+    _ "github.com/latelee/myproject/app4/cmd/update"
+    _ "github.com/latelee/myproject/app4/cmd/gin1"
+    _ "github.com/latelee/myproject/app4/cmd/udpp"
+    _ "github.com/latelee/myproject/app4/cmd/tcpp"
     
 )
 
@@ -46,7 +45,7 @@ func NewCommand() *cobra.Command {
         fmt.Println("test cobra")
         //fmt.Println("debug: ", debug, "deamon: ", deamon, "port:", port)
         // 执行业务程序，可用参数传递，或在内部读取配置文件
-        registerModules()
+        //registerModules()
         core.Run()
 
 	},
@@ -66,11 +65,7 @@ func initFlags(cmd *cobra.Command) {
 }
 
 func registerModules() {
-    server.Register()
-    update.Register()
-    gin1.Register()
-    udpp.Register()
-    tcpp.Register()
+
 }
 
 func init() {
