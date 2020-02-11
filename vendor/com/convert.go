@@ -12,6 +12,8 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 
+// 各种数字、字符等的格式转换
+
 package com
 
 import (
@@ -168,47 +170,81 @@ func Int2HexStr(num int) (hex string) {
 	return hex
 }
 
-func ToFixed(value, scale int) (s string) {
+func ToFixed1(value, scale int) (s string) {
     realValue := float64(value) / math.Pow10(scale)
     s = fmt.Sprintf("%v", realValue)
     return s
     //fmt.Printf("%v %v\r\n", realValue, str);
 }
 
-/*
-// TODO:改为任意值
+// TODO:有无更好的方式？
 func ToFixed(value interface{}, scale int) (s string) {
-	
+	var realValue float64
 	switch v := value.(type) {
 	case float32:
+        realValue = float64(v)
 	case float64:
+        realValue = float64(v)
 	case int8:
+        realValue = float64(v)
 	case int16:
+        realValue = float64(v)
 	case int32:
+        realValue = float64(v)
 	case int64:
+        realValue = float64(v)
 	case uint8:
+        realValue = float64(v)
 	case uint16:
+        realValue = float64(v)
 	case uint32:
+        realValue = float64(v)
 	case uint64:
-	case uint:
+	    realValue = float64(v)
+    case uint:
+        realValue = float64(v)
 	case int:
-		fmt.Println("type int")
-		realValue := float64(v) / math.Pow10(scale);
-		s = fmt.Sprintf("%v", realValue);
+		realValue = float64(v)
 	default:
-		fmt.Println("type uuu")		
+		realValue = 0
 	}
-	
-	fmt.Println("ddddddddddd")
+	realValue = realValue / math.Pow10(scale);
+    s = fmt.Sprintf("%v", realValue);
 	return s
-    
-    //fmt.Printf("%v %v\r\n", realValue, str);
 }
-*/
 
-func Round(value, scale int) (s string) {
-    realValue := float64(value) * math.Pow10(scale)
-	s = fmt.Sprintf("%v", realValue)
+func Round(value interface{}, scale int) (s string) {
+    var realValue float64
+	switch v := value.(type) {
+	case float32:
+        realValue = float64(v)
+	case float64:
+        realValue = float64(v)
+	case int8:
+        realValue = float64(v)
+	case int16:
+        realValue = float64(v)
+	case int32:
+        realValue = float64(v)
+	case int64:
+        realValue = float64(v)
+	case uint8:
+        realValue = float64(v)
+	case uint16:
+        realValue = float64(v)
+	case uint32:
+        realValue = float64(v)
+	case uint64:
+	    realValue = float64(v)
+    case uint:
+        realValue = float64(v)
+	case int:
+		realValue = float64(v)
+	default:
+		realValue = 0
+	}
+	realValue = realValue * math.Pow10(scale);
+    s = fmt.Sprintf("%v", realValue);
 	return s
 }
 
