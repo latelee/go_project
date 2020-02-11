@@ -44,6 +44,6 @@ func (a *server) Start() {
 func doit() {
     for {
         klog.Infoln(".")
-        com.Sleep(1000)
+        com.Sleep(10000)
     }
 }

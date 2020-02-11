@@ -5,8 +5,6 @@ import (
     "fmt"
     "os"
     "time"
-    
-    "com"
 
     "github.com/spf13/cobra"
     "github.com/kubeedge/beehive/pkg/core"
@@ -14,6 +12,10 @@ import (
     
     _ "github.com/latelee/myproject/app4/cmd"
     "github.com/latelee/myproject/app4/cmd/server"
+    "github.com/latelee/myproject/app4/cmd/update"
+    "github.com/latelee/myproject/app4/cmd/gin1"
+    "github.com/latelee/myproject/app4/cmd/udpp"
+    "github.com/latelee/myproject/app4/cmd/tcpp"
     
 )
 
@@ -65,28 +67,18 @@ func initFlags(cmd *cobra.Command) {
 
 func registerModules() {
     server.Register()
+    update.Register()
+    gin1.Register()
+    udpp.Register()
+    tcpp.Register()
 }
 
 func init() {
     //klog.InitFlags(nil)
 }
 
-
-func tmp() {
-
-for {
-var timeNow = time.Now
-now := timeNow()
-hour, minute, second := now.Clock()
-ms := now.Nanosecond()/1000
-ms1 := now.Nanosecond()/1000/1000
-fmt.Println(hour, minute, second, ms, ms1)
-com.Sleep(1000)
-}
-}
-
 func main() {
-    klog.Infoln("hello klog...")
+    klog.Info("hello klog...")
     //return
 	cmd := NewCommand()
 	if err := cmd.Execute(); err != nil {
