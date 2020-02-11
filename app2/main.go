@@ -11,6 +11,9 @@ package main
 import (
     "fmt"
     "os"
+    "os/signal"
+	"syscall"
+
     "time"
 
     "github.com/spf13/cobra"
@@ -34,7 +37,6 @@ var (
 `
 )
 
-
 func NewCommand() *cobra.Command {
     rootCmd := &cobra.Command{
 	Use:   "demo",
@@ -47,6 +49,7 @@ func NewCommand() *cobra.Command {
         //fmt.Println("debug: ", debug, "deamon: ", deamon, "port:", port)
         // 执行业务程序，可用参数传递，或在内部读取配置文件
         app.Demo(debug)
+        GracefulShutdown()
 	},
     }
     
@@ -73,6 +76,18 @@ func InitFlags(cmd *cobra.Command) {
 	cmd.PersistentFlags().IntVarP(&port, "port", "p", 89, "port number")
     cmd.PersistentFlags().DurationVarP(&timeout, "timeout", "t", 10*time.Second, "http request timeout")
 	
+}
+
+// 最后调用
+func GracefulShutdown() {
+	c := make(chan os.Signal)
+	signal.Notify(c, syscall.SIGINT, syscall.SIGHUP, syscall.SIGTERM,
+		syscall.SIGQUIT, syscall.SIGILL, syscall.SIGTRAP, syscall.SIGABRT)
+	select {
+	case s := <-c:
+		fmt.Printf("Get os signal %v\n", s.String())
+		// 此处处理销毁事务。。。
+	}
 }
 
 func main() {
