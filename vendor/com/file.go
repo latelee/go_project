@@ -87,7 +87,7 @@ func FileSize(file string) (int64) {
 }
 
 // Copy copies file from source to target path.
-func Copy(dest, src string) error {
+func CopyFile(dest, src string) error {
 	// Gather file information to set back later.
 	si, err := os.Lstat(src)
 	if err != nil {
