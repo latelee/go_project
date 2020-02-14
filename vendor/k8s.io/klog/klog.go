@@ -1345,3 +1345,15 @@ func Exitf(format string, args ...interface{}) {
 	atomic.StoreUint32(&fatalNoStacks, 1)
 	logging.printf(fatalLog, format, args...)
 }
+
+func Print(args ...interface{}) {
+	logging.print(infoLog, args...)
+}
+
+func Println(args ...interface{}) {
+	logging.println(infoLog, args...)
+}
+
+func Printf(format string, args ...interface{}) {
+	logging.printf(infoLog, format, args...)
+}
