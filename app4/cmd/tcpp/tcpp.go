@@ -5,6 +5,7 @@ import (
     _ "com"
     "k8s.io/klog"
     "github.com/kubeedge/beehive/pkg/core"
+    beehiveContext "github.com/kubeedge/beehive/pkg/core/context"
 
 	"net"
 	"strings"
@@ -81,6 +82,12 @@ func handleConnection(conn net.Conn) {
 	klog.Infof("New TCP Connect from [%s:%s] ......", ip, port)
 
 	for {
+        select {
+		case <-beehiveContext.Done():
+			klog.Info("Stop tcp handle")
+			return
+		default:
+		}
 		buf := make([]byte, TCP_RECV_LEN)
 		n, err := conn.Read(buf)
 		if err != nil {

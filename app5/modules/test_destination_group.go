@@ -1,7 +1,7 @@
 package modules
 
 import (
-	"fmt"
+	"k8s.io/klog"
 
 	"github.com/kubeedge/beehive/pkg/core"
 	c "github.com/kubeedge/beehive/pkg/core/context"
@@ -42,7 +42,7 @@ func (a *testModuleDestGroup) Enable() bool {
 func (m *testModuleDestGroup) Start() {
 	
 	message, err := c.Receive(DestinationGroupModule)
-	fmt.Printf("destination group module receive message:%v error:%v\n", message, err)
+	klog.Printf("destination group module receive message:%v error:%v\n", message, err)
 	if message.IsSync() {
 		resp := message.NewRespByMessage(&message, "10 years old")
 		c.SendResp(*resp)

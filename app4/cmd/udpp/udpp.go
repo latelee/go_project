@@ -5,6 +5,7 @@ import (
     "com"
     "k8s.io/klog"
     "github.com/kubeedge/beehive/pkg/core"
+    beehiveContext "github.com/kubeedge/beehive/pkg/core/context"
 
 	"net"
 )
@@ -20,7 +21,7 @@ type udpServer struct {
 }
 
 func init() {
-    core.Register(newudpServer(true))
+    //core.Register(newudpServer(true))
 }
 
 func newudpServer(enable bool) *udpServer {
@@ -69,6 +70,12 @@ func UdpServer() {
 	// recieve
 	go func() {
 		for {
+            select {
+            case <-beehiveContext.Done():
+                klog.Info("Stop udp recv")
+                return
+            default:
+            }
 			data := make([]byte, UDP_RECV_LEN)
 			n, cAddr, err := ln.ReadFrom(data)
 			if err != nil {
@@ -83,6 +90,12 @@ func UdpServer() {
 
 	// send
 	for {
+        select {
+		case <-beehiveContext.Done():
+			klog.Info("Stop upd send")
+			return
+		default:
+		}
         klog.Info("send udp...")
 		rAddr, err := net.ResolveUDPAddr("udp", "255.255.255.255:1024")
 		_, err = ln.WriteToUDP([]byte("hello_all"), rAddr)

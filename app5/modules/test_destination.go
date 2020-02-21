@@ -1,8 +1,9 @@
 package modules
 
 import (
-	"fmt"
-
+	//"klog"
+    "com"
+    "k8s.io/klog"
 	"github.com/kubeedge/beehive/pkg/core"
 	c "github.com/kubeedge/beehive/pkg/core/context"
 )
@@ -42,27 +43,40 @@ func (a *testModuleDest) Enable() bool {
 
 func (m *testModuleDest) Start() {
 	
-	message, err := c.Receive(DestinationModule)
-	fmt.Printf("destination module receive message:%v error:%v\n", message, err)
-	message, err = c.Receive(DestinationModule)
-	fmt.Printf("destination module receive message:%v error:%v\n", message, err)
-	resp := message.NewRespByMessage(&message, "fine")
-	if message.IsSync() {
-		c.SendResp(*resp)
-	}
+    for {
+        select {
+        case <-c.Done():
+            klog.Info("Stop test recv")
+            return
+        default:
+        message, err := c.Receive(DestinationModule)
+        //klog.Printf("destination module receive message:%v error:%v\n", message, err)
+        if err != nil {
+            continue
+        }
+        msg := message.GetContent()
+        srcMdl := message.GetSource()
+        if msg == "test1" {
+            go func() {
+                klog.Printf("got test1 from %v ++++++++++++", srcMdl)
+                com.Sleep(1000)
+                klog.Printf("got again111 %v %v", message.GetSource(), message.GetContent)
+            }()
+        } else if msg == "test2" {
+            go func() {
+                klog.Printf("got test2 from %v --------------", srcMdl)
+                com.Sleep(1000)
+                klog.Printf("got again222 %v %v", message.GetSource(), message.GetContent)
+            }()
+        } else {
+            klog.Printf("got default %s %s...", msg, message.GetContent())
+            resp := message.NewRespByMessage(&message, "fine")
+            if message.IsSync() {
+                c.SendResp(*resp)
+            }
+        }
 
-	message, err = c.Receive(DestinationModule)
-	fmt.Printf("destination module receive message:%v error:%v\n", message, err)
-	if message.IsSync() {
-		resp = message.NewRespByMessage(&message, "fine")
-		c.SendResp(*resp)
-	}
 
-	//message, err = c.Receive(DestinationModule)
-	//fmt.Printf("destination module receive message:%v error:%v\n", message, err)
-	//if message.IsSync() {
-	//	resp = message.NewRespByMessage(&message, "20 years old")
-	//	c.SendResp(*resp)
-	//}
+    }
 }
 

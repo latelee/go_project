@@ -41,7 +41,7 @@ func TestFile(t *testing.T) {
 	}
 
 	// 文件拷贝
-	err = Copy("file.go.new", "file.go")
+	err = CopyFile("file.go.new", "file.go")
 	if err != nil {
 		fmt.Println("copy file error:", err)
 	} else {
