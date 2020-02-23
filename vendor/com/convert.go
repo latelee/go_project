@@ -18,9 +18,11 @@ package com
 
 import (
 	"fmt"
+    "bytes"
 	"strconv"
 	"math"
 	"encoding/hex"
+    "encoding/gob"
 )
 
 // Convert string to specify type.
@@ -262,7 +264,6 @@ func ToHexString(b []byte) (ostr string) {
     return;
 }
 
-
 // 简单解析版本
 func ReadCP56Time2a(buf []byte) string {
     u1 := uint16(buf[0]);
@@ -306,3 +307,64 @@ func WriteCP56Time2a(date) [] byte {
     buf[6] = fullyear - 2000;
 }
 */
+
+// Marshal converts the given struct to a byte slice.
+func Marshal(o interface{}) ([]byte, error) {
+	var buf bytes.Buffer
+	encoder := gob.NewEncoder(&buf)
+
+	err := encoder.Encode(o)
+	if err != nil {
+		return nil, err
+	}
+
+	return buf.Bytes(), nil
+}
+
+// Unmarshal reads from the byte slice `data` and decodes the struct into `o`.
+func Unmarshal(data []byte, o interface{}) error {
+	buf := bytes.NewBuffer(data)
+	decoder := gob.NewDecoder(buf)
+
+	err := decoder.Decode(o)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func Dump(by []byte, len int) {
+    line := 16
+    n := len / line
+    if len % line != 0 {
+        n++
+    }
+    for i := 0; i < n; i++ {
+        fmt.Printf("%08x  ", i*line)
+        for j := 0; j < line; j++ {
+            if i*line+j < len {
+                fmt.Printf("%02x ", by[i*line+j])
+            } else {
+                fmt.Printf("   ")
+            }
+            if j == 7 {
+                fmt.Printf(" ")
+            }
+        }
+        fmt.Printf(" |")
+        for j := 0; j<line && (i*line+j)<len; j++ {
+            if (i*line+j) < len {
+                c := by[i*line+j]
+                if c >= ' ' && c < '~'{
+                    fmt.Printf("%c", c)
+                } else {
+                    fmt.Printf(".")
+                }
+            } else {
+                fmt.Printf("   ")
+            }
+        }
+        fmt.Printf("|\n")
+    }
+}

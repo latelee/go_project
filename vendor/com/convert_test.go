@@ -6,6 +6,13 @@ import (
 	"testing"
 )
 
+type TestObj struct {
+	Name  string
+	Value uint64
+	Size  int32
+	Guard float32
+}
+
 func TestConvert(t *testing.T) {
 
 	fmt.Println("conv ", ToStr(100.56))
@@ -21,4 +28,23 @@ func TestConvert(t *testing.T) {
 	str := ToHexString(hex)
 	fmt.Printf("hexstr %v \n", str)
 	
+    object := TestObj{
+		Name:  "James",
+		Value: 128,
+		Size:  256,
+		Guard: 56.4,
+	}
+    
+    data, err := Marshal(object)
+	if err != nil {
+		fmt.Printf("marshal failed")
+	}
+    fmt.Println("data: ", data)
+    
+    var o TestObj
+    err = Unmarshal(data, &o)
+    if err != nil {
+		fmt.Printf("Unmarshal failed")
+	}
+    fmt.Println("data: ", o)
 }
