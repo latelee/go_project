@@ -6,7 +6,8 @@ import (
     "os"
     "time"
     "com"
-
+    //"flag"
+    
     "github.com/spf13/cobra"
     "github.com/kubeedge/beehive/pkg/core"
     "k8s.io/klog"
@@ -16,6 +17,7 @@ import (
     "github.com/latelee/myproject/app4/cmd/gin1"
     "github.com/latelee/myproject/app4/cmd/udpp"
     "github.com/latelee/myproject/app4/cmd/tcpp"
+    "github.com/latelee/myproject/app4/conf"
     
 )
 
@@ -73,11 +75,24 @@ func registerModules() {
     tcpp.Register()
 }
 
+// 似乎写不到文件
+// 写文件必须将logtostderr设置为false
 func init() {
-    //klog.InitFlags(nil)
+    klog.InitFlags(nil)
+    // flag.Set("logtostderr", "false")
+	// flag.Set("log_file", "myfile.log")
+	// flag.Parse()
+}
+
+func doInit() {  
+    opt := conf.Config()
+    conf.PrintConfig(opt)
+    //klog.Printf("opt: %V\n", opt)
 }
 
 func doMain() {
+    doInit()
+
     err := os.Chdir("/vagrant/golang/src/vendor/github.com/latelee/myproject/app4")
     if err != nil {
         klog.Printf("cant change dir.\n")

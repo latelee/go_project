@@ -1,0 +1,10 @@
+database:
+  drivername: sqlite333
+modules:
+  edged:
+    enable: true
+  host:
+    interfacename: eth1
+    ip: ""
+  device:
+    ip: 127.0.0.3

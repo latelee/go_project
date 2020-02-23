@@ -400,7 +400,6 @@ func init() {
 	// Default stderrThreshold is ERROR.
 	logging.stderrThreshold = errorLog
 
-    InitFlags(nil) // TOCHECK...
 	logging.setVState(0, nil, false)
 	go logging.flushDaemon()
 }
