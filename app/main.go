@@ -2,7 +2,7 @@
 package main
 
 import (
-    "fmt"
+    //"fmt"
     "os"
     "time"
     "com"
@@ -31,7 +31,6 @@ var (
 	rootLong = `
     long description.
     A demo app using cobra command
-
 `
 	rootExample = `
     example message.
@@ -47,10 +46,13 @@ func NewCommand() *cobra.Command {
     Example: rootExample,
     Version: "1.0",
 	Run: func(cmd *cobra.Command, args []string) {
-        fmt.Println("test cobra")
-        //fmt.Println("debug: ", debug, "deamon: ", deamon, "port:", port)
         // 执行业务程序，可用参数传递，或在内部读取配置文件
-        doMain()
+        // 可以移到函数中
+        opts := conf.Config()
+        conf.PrintDefaultAndExit()
+        conf.PrintConfigAndExit(opts)
+
+        doMain(opts)
 	},
     }
 
@@ -70,11 +72,11 @@ func initFlags(cmd *cobra.Command) {
     conf.AddFlag(cmd)
 }
 
-func registerModules() {
-    devServer.Register()
-    gin.Register()
+func registerModules(opts *conf.AppCoreConfig) {
+    gin.Register(opts.Modules.Gin)
     udpp.Register()
     tcpp.Register()
+    devServer.Register()
 }
 
 // 似乎写不到文件
@@ -87,12 +89,11 @@ func init() {
 }
 
 func doInit() {  
-    
-    conf.PrintDefaultAndExit()
+    //conf.PrintDefaultAndExit()
     //klog.Printf("opt: %V\n", opt)
 }
 
-func doMain() {
+func doMain(opts *conf.AppCoreConfig) {
     doInit()
 
     err := os.Chdir("/vagrant/golang/src/vendor/github.com/latelee/myproject/app")
@@ -108,7 +109,7 @@ func doMain() {
         klog.Printf("normal test exit\n")
         os.Exit(43); // 如果不指定，默认返回0， 这里只是测试
     } else { // 业务程序
-        registerModules()
+        registerModules(opts)
         core.Run()
     }
 }

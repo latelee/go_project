@@ -25,16 +25,14 @@ const (
 )
 
 const (
-	GroupName  = "edgecore.config.kubeedge.io"
-	APIVersion = "v1alpha1"
-	Kind       = "EdgeCore"
+    GroupName  = "config.test.io"
+    APIVersion = "v1alpha1"
+    Kind       = "myKind"
 )
 
 const (
-	// DataBaseDriverName is sqlite3
-	DataBaseDriverName = "sqlite3"
-	// DataBaseAliasName is default
-	DataBaseAliasName = "default"
-	// DataBaseDataSource is edge.db
-	DataBaseDataSource = "/var/lib/kubeedge/edgecore.db"
+    DataBaseDriverName = "sqlite3"
+    DataBaseAliasName = "default"
+    DataBaseDataSource = "/var/lib/my.db"
+    
 )

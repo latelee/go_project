@@ -2,18 +2,23 @@ package gin
 
 import (
     _ "fmt"
+    "strconv"
+
     "com"
     "k8s.io/klog"
     "github.com/kubeedge/beehive/pkg/core"
     beehiveContext "github.com/kubeedge/beehive/pkg/core/context"
-    update "github.com/latelee/myproject/app/pkg/update"
 
     "github.com/gin-gonic/gin"
     "net/http"
+    
+    "github.com/latelee/myproject/app/pkg/update"
+    "github.com/latelee/myproject/app/conf"
 )
 
 type ginServer struct {
     enable bool
+    conf.Gin
     // 后可加其它字段
 }
 
@@ -21,14 +26,15 @@ func init() {
     //core.Register(newginServer(true))
 }
 
-func newginServer(enable bool) *ginServer {
+func newginServer(opts *conf.Gin) *ginServer {
     return &ginServer{
-        enable: enable,
+        enable: opts.Enable,
+        Gin:    *opts,
     }
 }
 
-func Register() {
-    core.Register(newginServer(true))
+func Register(opts *conf.Gin) {
+    core.Register(newginServer(opts))
 }
 
 func (a *ginServer) Name() string {
@@ -51,7 +57,8 @@ func (a *ginServer) Start() {
     router := gin.Default()
 	router.POST("/test", HelloWordPost)
     router.POST("/update", UpdateTest)
-	router.Run(":4001")
+    //router.Run(":4000")
+	router.Run(":" + strconv.Itoa(a.Gin.Port))
 }
 
 func HelloWordPost (c *gin.Context) {
