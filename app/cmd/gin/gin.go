@@ -18,23 +18,21 @@ import (
 
 type ginServer struct {
     enable bool
-    conf.Gin
-    // 后可加其它字段
 }
 
 func init() {
     //core.Register(newginServer(true))
 }
 
-func newginServer(opts *conf.Gin) *ginServer {
+func newginServer(enable bool) *ginServer {
     return &ginServer{
-        enable: opts.Enable,
-        Gin:    *opts,
+        enable: enable,
     }
 }
 
 func Register(opts *conf.Gin) {
-    core.Register(newginServer(opts))
+    initConfig(opts)
+    core.Register(newginServer(opts.Enable))
 }
 
 func (a *ginServer) Name() string {
@@ -58,7 +56,7 @@ func (a *ginServer) Start() {
 	router.POST("/test", HelloWordPost)
     router.POST("/update", UpdateTest)
     //router.Run(":4000")
-	router.Run(":" + strconv.Itoa(a.Gin.Port))
+	router.Run(":" + strconv.Itoa(Config.Port))
 }
 
 func HelloWordPost (c *gin.Context) {

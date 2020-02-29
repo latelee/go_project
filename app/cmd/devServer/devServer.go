@@ -7,6 +7,8 @@ import (
 
     "github.com/kubeedge/beehive/pkg/core"
 
+    "github.com/latelee/myproject/app/conf"
+
 )
 
 type devServer struct {
@@ -24,8 +26,9 @@ func newdevServer(enable bool) *devServer {
     }
 }
 
-func Register() {
-    core.Register(newdevServer(true))
+func Register(opts *conf.DevServer) {
+    initConfig(opts)
+    core.Register(newdevServer(opts.Enable))
 }
 
 func (a *devServer) Name() string {
@@ -43,4 +46,5 @@ func (a *devServer) Enable() bool {
 
 func (a *devServer) Start() {
     klog.Infoln("devServer start...")
+    klog.Println(Config.Port, Config.Name, Config.Protocol)
 }

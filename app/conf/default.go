@@ -15,9 +15,11 @@ import (
 
 var defconf bool
 var showconf bool
+var confile string
 
 // 本包内的标志，如打印配置文件
 func AddFlag(cmd *cobra.Command) {
+    cmd.PersistentFlags().StringVar(&confile, "config", "", "specify config file")
     cmd.PersistentFlags().BoolVar(&defconf, "defconfig", false, "print config information")
     cmd.PersistentFlags().BoolVar(&showconf, "showconfig", false, "show config information")
 }
@@ -26,8 +28,12 @@ func AddFlag(cmd *cobra.Command) {
 // 如部分不存在，则使用默认值
 func Config() *AppCoreConfig {
     cfg := newDefaultConfig()
-    if err := cfg.parse(path.Join(DefaultConfigDir, DefaultCOnfigFile)); err != nil {
-        klog.Print("config file not exist or parse error, using default one")
+    confpath := path.Join(DefaultConfigDir, DefaultCOnfigFile)
+    if confile != "" {
+        confpath = confile
+    }
+    if err := cfg.parse(confpath); err != nil {
+        klog.Print("config file ", confpath, " not exist or parse error, using default one")
     }
     return cfg
 }

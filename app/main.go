@@ -76,7 +76,7 @@ func registerModules(opts *conf.AppCoreConfig) {
     gin.Register(opts.Modules.Gin)
     udpp.Register()
     tcpp.Register()
-    devServer.Register()
+    devServer.Register(opts.Modules.DevServer)
 }
 
 // 似乎写不到文件
