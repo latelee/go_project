@@ -5,20 +5,20 @@ import (
     //"fmt"
     "os"
     "time"
-    "com"
+    "github.com/latelee/go_project/pkg/com"
     //"flag"
     
     "github.com/spf13/cobra"
     "github.com/kubeedge/beehive/pkg/core"
     "k8s.io/klog"
 
-    "github.com/latelee/myproject/app/cmd/devServer"
-    "github.com/latelee/myproject/app/cmd/gin"
-    "github.com/latelee/myproject/app/cmd/udpp"
-    "github.com/latelee/myproject/app/cmd/tcpp"
-    "github.com/latelee/myproject/app/conf"
+    "github.com/latelee/go_project/app/cmd/devServer"
+    "github.com/latelee/go_project/app/cmd/gin"
+    "github.com/latelee/go_project/app/cmd/udpp"
+    "github.com/latelee/go_project/app/cmd/tcpp"
+    "github.com/latelee/go_project/app/conf"
 
-    "github.com/latelee/myproject/app/pkg/update"
+    "github.com/latelee/go_project/app/pkg/update"
     
 )
 
@@ -96,7 +96,7 @@ func doInit() {
 func doMain(opts *conf.AppCoreConfig) {
     doInit()
 
-    err := os.Chdir("/vagrant/golang/src/vendor/github.com/latelee/myproject/app")
+    err := os.Chdir("/vagrant/golang/src/vendor/github.com/latelee/go_project/app")
     if err != nil {
         klog.Printf("cant change dir.\n")
         //return

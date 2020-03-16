@@ -18,7 +18,7 @@ import (
 
     "github.com/spf13/cobra"
     
-    app "github.com/latelee/myproject/app2/app"
+    app "github.com/latelee/go_project/app2/app"
 )
 
 var debug, deamon bool

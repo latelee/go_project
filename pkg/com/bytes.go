@@ -145,3 +145,42 @@ func TrimLeftZeroes(s []byte) []byte {
 	}
 	return s[idx:]
 }
+
+func IsPrintable(v byte) bool {
+    if v > 0x1f && v <= 0x7f {
+        return true
+    } else {
+        return false
+    }
+}
+
+// 返回首次出现连续字符串的索引位置
+func GetContinuedIdx(hexByte []byte) (int, int) {
+    idx1 := 0
+    idx2 := 0
+    hexLen := len(hexByte)
+    flag := false
+    // first..
+    for i := 0; i < hexLen-1; i++ {
+        if IsPrintable(hexByte[i]) && IsPrintable(hexByte[i+1]) {
+            idx1 = i
+            flag = true
+            break
+        }
+    }
+    if flag == false {
+        return 0, 0
+    }
+
+    // check next
+    for i := idx1; i < hexLen-1; i++ {
+        if IsPrintable(hexByte[i]) && !IsPrintable(hexByte[i+1]) && i != hexLen { // 在前部分
+            idx2 = i+1 // for this char
+            break
+        } else if IsPrintable(hexByte[i]) && IsPrintable(hexByte[i+1]) && i+2 == hexLen { // 在后部分
+            idx2 = hexLen
+            break;
+        }
+    }
+    return idx1, idx2
+}

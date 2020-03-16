@@ -2,12 +2,12 @@ package server
 
 import (
     _ "fmt"
-    //"com"
+    //"github.com/latelee/go_project/pkg/com"
     "k8s.io/klog"
 
     "github.com/kubeedge/beehive/pkg/core"
     
-    update "github.com/latelee/myproject/app4/cmd/update"
+    update "github.com/latelee/go_project/app4/cmd/update"
     
     "github.com/gin-gonic/gin"
     "net/http"

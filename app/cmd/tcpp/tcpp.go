@@ -2,7 +2,7 @@ package tcpp
 
 import (
     _ "fmt"
-    _ "com"
+    _ "github.com/latelee/go_project/pkg/com"
     "k8s.io/klog"
     "github.com/kubeedge/beehive/pkg/core"
     beehiveContext "github.com/kubeedge/beehive/pkg/core/context"

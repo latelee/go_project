@@ -21,6 +21,9 @@ import (
     "bytes"
 	"strconv"
 	"math"
+    "os"
+    "io"
+    "reflect"
 	"encoding/hex"
     "encoding/gob"
 )
@@ -367,4 +370,67 @@ func Dump(by []byte, len int) {
         }
         fmt.Printf("|\n")
     }
+}
+
+
+func Dump1(w io.Writer, by []byte, len int) {
+    line := 16
+    n := len / line
+    if len % line != 0 {
+        n++
+    }
+    for i := 0; i < n; i++ {
+        fmt.Fprintf(w, "%08x  ", i*line)
+        for j := 0; j < line; j++ {
+            if i*line+j < len {
+                fmt.Fprintf(w, "%02x ", by[i*line+j])
+            } else {
+                fmt.Fprintf(w, "   ")
+            }
+            if j == 7 {
+                fmt.Fprintf(w, " ")
+            }
+        }
+        fmt.Fprintf(w, " |")
+        for j := 0; j<line && (i*line+j)<len; j++ {
+            if (i*line+j) < len {
+                c := by[i*line+j]
+                if c >= ' ' && c < '~'{
+                    fmt.Fprintf(w, "%c", c)
+                } else {
+                    fmt.Fprintf(w, ".")
+                }
+            } else {
+                fmt.Fprintf(w, "   ")
+            }
+        }
+        fmt.Fprintf(w, "|\n")
+    }
+}
+
+// 将数组、map等，按行打印，默认fmt.Println是一行
+func PrintByLine(w io.Writer, msg interface{}) {
+	if w == os.Stderr {
+		fmt.Fprintf(os.Stderr, "error: ")
+	}
+	t := reflect.TypeOf(msg)
+	switch t.Kind() {
+	case reflect.Slice, reflect.Array:
+		fmt.Fprintf(w, "[\n")
+		v := reflect.ValueOf(msg)
+		for i := 0; i < v.Len(); i++ {
+			fmt.Fprintf(w, "  %v\n", v.Index(i))
+		}
+		fmt.Fprintf(w, "]\n")
+	case reflect.Map:
+		fmt.Fprintf(w, "[\n")
+		v := reflect.ValueOf(msg)
+		iter := v.MapRange()
+		for iter.Next() {
+			fmt.Fprintf(w, "  %v: %v\n", iter.Key(), iter.Value())
+		}
+		fmt.Fprintf(w, "]\n")
+	default:
+		fmt.Fprintf(w, "%v\n", msg)
+	}
 }

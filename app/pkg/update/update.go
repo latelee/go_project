@@ -32,7 +32,7 @@ package update
 
 import (
     _ "fmt"
-    "com"
+    "github.com/latelee/go_project/pkg/com"
     "k8s.io/klog"
 
     _ "io"

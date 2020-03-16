@@ -6,8 +6,8 @@ import (
     "io"
 
     "github.com/spf13/cobra"
-    cloud "github.com/latelee/myproject/app1/cmd/cloud"
-    edge "github.com/latelee/myproject/app1/cmd/edge"
+    cloud "github.com/latelee/go_project/app1/cmd/cloud"
+    edge "github.com/latelee/go_project/app1/cmd/edge"
 )
 
 

@@ -2,7 +2,7 @@ package devServer
 
 import (
     "sync"
-    "github.com/latelee/myproject/app/conf"
+    "github.com/latelee/go_project/app/conf"
 )
 
 var Config devConfig

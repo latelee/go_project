@@ -4,7 +4,7 @@ import (
     _ "fmt"
     "strconv"
 
-    "com"
+    "github.com/latelee/go_project/pkg/com"
     "k8s.io/klog"
     "github.com/kubeedge/beehive/pkg/core"
     beehiveContext "github.com/kubeedge/beehive/pkg/core/context"
@@ -12,8 +12,8 @@ import (
     "github.com/gin-gonic/gin"
     "net/http"
     
-    "github.com/latelee/myproject/app/pkg/update"
-    "github.com/latelee/myproject/app/conf"
+    "github.com/latelee/go_project/app/pkg/update"
+    "github.com/latelee/go_project/app/conf"
 )
 
 type ginServer struct {

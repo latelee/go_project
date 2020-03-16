@@ -18,6 +18,7 @@ import (
 	"fmt"
     "os/exec"
 	"strings"
+    //"bytes"
 	"testing"
 )
 
@@ -50,6 +51,42 @@ func TestExecCmd2(t *testing.T) {
 	}
 	fmt.Println(stdout)
 }
+
+func TestExecCmd3(t *testing.T) {
+    file1 := "201909020001"
+    file2 := "201909020001"
+    cmdarg := fmt.Sprintf("lame -h %s.wav %s.mp3", file1, file2)
+    //c := &Command{Cmd: exec.Command("sh", "-c", "lame -h 201909020001.wav 201909020001.mp3")}
+    c := &Command{Cmd: exec.Command("sh", "-c", cmdarg)}
+	c.Execute()
+    fmt.Println("cmd: ", c.Cmd.Args)
+    errInfo := c.GetStdErr()
+    if errInfo != "" {
+        fmt.Println("error ", errInfo)
+    }
+    fmt.Println("==================")
+
+    // 注：此方式亦不行
+    stdout, stderr, err := ExecCmd("lame", "-h", "201909020001.wav 201909020002.mp3")
+    fmt.Println(stdout, stderr, err)
+
+// 原始API，失败
+/*
+    cmd := exec.Command("sh", "-c", "lame", "-h", "201909020001.wav 201909020002.mp3")
+    fmt.Println("cmd: ", cmd)
+    var out bytes.Buffer
+    var stderr bytes.Buffer
+    cmd.Stdout = &out
+    cmd.Stderr = &stderr
+    err = cmd.Run()
+    if err != nil {
+        fmt.Println(fmt.Sprint(err) + ": " + stderr.String())
+    } else {
+        fmt.Println(out.String())
+    }
+*/
+}
+
 
 func BenchmarkExecCmd(b *testing.B) {
 	for i := 0; i < b.N; i++ {

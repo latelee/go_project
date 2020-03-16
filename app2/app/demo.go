@@ -2,7 +2,7 @@ package app
 
 import (
     "fmt"
-    "com"
+    "github.com/latelee/go_project/pkg/com"
 )
 
 func doit() {

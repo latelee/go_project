@@ -5,7 +5,7 @@ import (
     "os"
     "path"
     "io/ioutil"
-    //"com"
+    //"github.com/latelee/go_project/pkg/com"
     "gopkg.in/yaml.v2"
     "k8s.io/klog"
 )

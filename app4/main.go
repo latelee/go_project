@@ -5,19 +5,19 @@ import (
     "fmt"
     "os"
     "time"
-    "com"
+    "github.com/latelee/go_project/pkg/com"
     //"flag"
     
     "github.com/spf13/cobra"
     "github.com/kubeedge/beehive/pkg/core"
     "k8s.io/klog"
 
-    "github.com/latelee/myproject/app4/cmd/server"
-    "github.com/latelee/myproject/app4/cmd/update"
-    "github.com/latelee/myproject/app4/cmd/gin1"
-    "github.com/latelee/myproject/app4/cmd/udpp"
-    "github.com/latelee/myproject/app4/cmd/tcpp"
-    "github.com/latelee/myproject/app4/conf"
+    "github.com/latelee/go_project/app4/cmd/server"
+    "github.com/latelee/go_project/app4/cmd/update"
+    "github.com/latelee/go_project/app4/cmd/gin1"
+    "github.com/latelee/go_project/app4/cmd/udpp"
+    "github.com/latelee/go_project/app4/cmd/tcpp"
+    "github.com/latelee/go_project/app4/conf"
     
 )
 
@@ -78,7 +78,7 @@ func registerModules() {
 // 似乎写不到文件
 // 写文件必须将logtostderr设置为false
 func init() {
-    klog.InitFlags(nil)
+    // klog.InitFlags(nil)
     // flag.Set("logtostderr", "false")
 	// flag.Set("log_file", "myfile.log")
 	// flag.Parse()
@@ -93,7 +93,7 @@ func doInit() {
 func doMain() {
     doInit()
 
-    err := os.Chdir("/vagrant/golang/src/vendor/github.com/latelee/myproject/app4")
+    err := os.Chdir("/vagrant/golang/src/vendor/github.com/latelee/go_project/app4")
     if err != nil {
         klog.Printf("cant change dir.\n")
         //return

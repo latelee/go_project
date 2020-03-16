@@ -2,12 +2,13 @@ package devServer
 
 import (
     _ "fmt"
-    //"com"
+    //"github.com/latelee/go_project/pkg/com"
     "k8s.io/klog"
 
     "github.com/kubeedge/beehive/pkg/core"
 
-    "github.com/latelee/myproject/app/conf"
+    "github.com/latelee/go_project/app/conf"
+    "github.com/latelee/go_project/app/pkg/vendors/NanWang"
 
 )
 
@@ -47,4 +48,5 @@ func (a *devServer) Enable() bool {
 func (a *devServer) Start() {
     klog.Infoln("devServer start...")
     klog.Println(Config.Port, Config.Name, Config.Protocol)
+    nanwang.Parser()
 }
