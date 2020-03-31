@@ -8,7 +8,7 @@ database:
 modules:
   gin:
     enable: true
-    port: 4000
+    port: 8080
   updserver:
     enable: true
     port: 10086

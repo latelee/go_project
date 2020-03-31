@@ -51,6 +51,9 @@ func (a *udpServer) Start() {
     UdpServer()
 }
 
+func (a *udpServer) Cleanup() {
+}
+
 // ..
 func UdpServer() {
 	IpAndPort := ":10086"
@@ -96,7 +99,7 @@ func UdpServer() {
 			return
 		default:
 		}
-        klog.Info("send udp...")
+        //klog.Info("send udp...")
 		rAddr, err := net.ResolveUDPAddr("udp", "255.255.255.255:1024")
 		_, err = ln.WriteToUDP([]byte("hello_all"), rAddr)
 		if err != nil {

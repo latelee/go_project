@@ -50,3 +50,6 @@ func (a *devServer) Start() {
     klog.Println(Config.Port, Config.Name, Config.Protocol)
     nanwang.Parser()
 }
+
+func (a *devServer) Cleanup() {
+}

@@ -48,6 +48,9 @@ func (a *tcpServer) Start() {
     TcpServer()
 }
 
+func (a *tcpServer) Cleanup() {
+}
+
 // TODO：添加断开的处理
 
 func TcpServer() {

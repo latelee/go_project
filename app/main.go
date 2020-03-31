@@ -82,7 +82,7 @@ func registerModules(opts *conf.AppCoreConfig) {
 // 似乎写不到文件
 // 写文件必须将logtostderr设置为false
 func init() {
-    klog.InitFlags(nil)
+    // klog.InitFlags(nil)
     // flag.Set("logtostderr", "false")
 	// flag.Set("log_file", "myfile.log")
 	// flag.Parse()
@@ -96,11 +96,12 @@ func doInit() {
 func doMain(opts *conf.AppCoreConfig) {
     doInit()
 
-    err := os.Chdir("/vagrant/golang/src/vendor/github.com/latelee/go_project/app")
+    // just test
+    /*err := os.Chdir("/vagrant/golang/src/vendor/github.com/latelee/go_project/app")
     if err != nil {
         klog.Printf("cant change dir.\n")
-        //return
-    }
+        return
+    }*/
     if mode == "upgrade" { // 升级切换功能
         klog.Printf("upgrade mode run and test\n")
         update.ProcessUpgrade()
