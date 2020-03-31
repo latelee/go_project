@@ -26,6 +26,7 @@ import (
     "reflect"
 	"encoding/hex"
     "encoding/gob"
+    "encoding/json"
 )
 
 // Convert string to specify type.
@@ -335,6 +336,19 @@ func Unmarshal(data []byte, o interface{}) error {
 	}
 
 	return nil
+}
+
+// convert map to struct
+func Map2Struct(jmap interface{}, s interface{}) error {
+    tmpDataJson, err := json.Marshal(jmap)
+    if err != nil {
+        return err
+    }
+    err = json.Unmarshal(tmpDataJson, &s)
+    if err != nil {
+        return err
+    }
+    return nil
 }
 
 func Dump(by []byte, len int) {

@@ -13,6 +13,7 @@ type Module interface {
 	Name() string
 	Group() string
 	Start()
+    Cleanup()
 	Enable() bool
 }
 
