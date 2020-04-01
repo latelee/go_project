@@ -7,6 +7,7 @@ package gin
 import (
     // "fmt"
     "strconv"
+    "time"
 
     //"k8s.io/klog"
 
@@ -22,7 +23,7 @@ type Person struct {
     Age int
 }
 
-// http://127.0.0.1:4000/api/v1/userinfo/
+// http://127.0.0.1:8080/api/v1/userinfo/
 func FetchAllUsers(c *gin.Context) {
 
 /*
@@ -53,8 +54,8 @@ func FetchAllUsers(c *gin.Context) {
 
 var setHeartBeat = 1
 
-// http://127.0.0.1:4000/api/v1/userinfo/1
-// http://127.0.0.1:4000/api/v1/userinfo/250
+// http://127.0.0.1:8080/api/v1/userinfo/1
+// http://127.0.0.1:8080/api/v1/userinfo/250
 func FetchSingleUser(c *gin.Context) {
     id := c.Param("id")
 
@@ -67,7 +68,7 @@ func FetchSingleUser(c *gin.Context) {
     // 临时测试
     if nid == 0 {
         setHeartBeat = 0
-    } else if nid == 1 {
+    } else {
         setHeartBeat = 1
     }
     
@@ -88,5 +89,13 @@ func FetchSingleUser(c *gin.Context) {
         }
     }
 
+    sendMsg := &BaseMessag{
+        Id: id,
+        Op: "back",
+        Timestamp: time.Now().UnixNano() / 1e6,
+        Data: person,
+    }
+    
+    WSSend(sendMsg)
     c.JSON(200, result)
 }
