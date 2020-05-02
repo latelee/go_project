@@ -5,20 +5,16 @@ import (
     //"fmt"
     "os"
     "time"
-    "github.com/latelee/go_project/pkg/com"
+    //"webdemo/pkg/com"
     //"flag"
     
     "github.com/spf13/cobra"
     "github.com/kubeedge/beehive/pkg/core"
     "k8s.io/klog"
 
-    "github.com/latelee/go_project/app/cmd/devServer"
-    "github.com/latelee/go_project/app/cmd/gin"
-    "github.com/latelee/go_project/app/cmd/udpp"
-    "github.com/latelee/go_project/app/cmd/tcpp"
-    "github.com/latelee/go_project/app/conf"
-
-    "github.com/latelee/go_project/app/pkg/update"
+    "webdemo/app/cmd/gin"
+    "webdemo/app/cmd/tcpp"
+    "webdemo/app/conf"
     
 )
 
@@ -74,9 +70,7 @@ func initFlags(cmd *cobra.Command) {
 
 func registerModules(opts *conf.AppCoreConfig) {
     gin.Register(opts.Modules.Gin)
-    udpp.Register()
-    tcpp.Register()
-    devServer.Register(opts.Modules.DevServer)
+    tcpp.Register(opts.Modules.TcpServer)
 }
 
 // 似乎写不到文件
@@ -95,28 +89,12 @@ func doInit() {
 
 func doMain(opts *conf.AppCoreConfig) {
     doInit()
-
-    // just test
-    /*err := os.Chdir("/vagrant/golang/src/vendor/github.com/latelee/go_project/app")
-    if err != nil {
-        klog.Printf("cant change dir.\n")
-        return
-    }*/
-    if mode == "upgrade" { // 升级切换功能
-        klog.Printf("upgrade mode run and test\n")
-        update.ProcessUpgrade()
-    } else if mode == "normaltest"{ // 这是模拟升级后的，仅测试
-        com.Sleep(10000)
-        klog.Printf("normal test exit\n")
-        os.Exit(43); // 如果不指定，默认返回0， 这里只是测试
-    } else { // 业务程序
-        registerModules(opts)
-        core.Run()
-    }
+    registerModules(opts)
+    core.Run()
 }
 
 func main() {
-    //return
+    klog.Info("server run...")
 	cmd := NewCommand()
 	if err := cmd.Execute(); err != nil {
 		os.Exit(1)

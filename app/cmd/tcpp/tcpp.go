@@ -1,8 +1,11 @@
 package tcpp
 
 import (
-    _ "fmt"
-    _ "github.com/latelee/go_project/pkg/com"
+	_ "fmt"
+	"strconv"
+	_ "webdemo/pkg/com"
+	"webdemo/app/conf"
+
     "k8s.io/klog"
     "github.com/kubeedge/beehive/pkg/core"
     beehiveContext "github.com/kubeedge/beehive/pkg/core/context"
@@ -27,8 +30,9 @@ func newtcpServer(enable bool) *tcpServer {
     }
 }
 
-func Register() {
-    core.Register(newtcpServer(true))
+func Register(opts *conf.TcpServer) {
+    initConfig(opts)
+    core.Register(newtcpServer(opts.Enable))
 }
 
 func (a *tcpServer) Name() string {
@@ -54,8 +58,8 @@ func (a *tcpServer) Cleanup() {
 // TODO：添加断开的处理
 
 func TcpServer() {
-	IpAndPort := "0.0.0.0:8000"
-	klog.Info("tcp listen: ", IpAndPort)
+	IpAndPort := "0.0.0.0:" + strconv.Itoa(Config.Port)
+	klog.Info("tcp listen on: ", IpAndPort)
 	ln, err := net.Listen("tcp", IpAndPort)
 	if err != nil {
 		klog.Errorln("tcp listen error: ", err)
@@ -82,7 +86,7 @@ func handleConnection(conn net.Conn) {
 	RemoteAddr := conn.RemoteAddr().String()
 	ip := (strings.Split(RemoteAddr, ":"))[0]
     port := (strings.Split(RemoteAddr, ":"))[1]
-	klog.Infof("New TCP Connect from [%s:%s] ......", ip, port)
+	klog.Infof("New TCP Connect from [%s:%s] ...", ip, port)
 
 	for {
         select {
@@ -99,6 +103,17 @@ func handleConnection(conn net.Conn) {
 			}
 			break
 		}
-		klog.Infof("TCP Received from [%s] buf: %v", RemoteAddr, hex.Dump(buf[:n]))
+		klog.Infof("TCP Received from [%s] buf: %v %v", RemoteAddr, hex.Dump(buf[:n]), string(buf))
+
+        // strings.Compare(string(buf), "world")
+		if buf[0] == 0x68 {
+            backbuf := "hello_back11111111111111111111111111111111111"
+            klog.Info("send ", backbuf)
+            conn.Write([]byte(backbuf))
+		} else if  buf[0] == 0x77 {
+            backbuf := "world_back22222222222222222222222222222222222222"
+            klog.Info("send1 ", backbuf)
+            conn.Write([]byte(backbuf))
+        }
 	}
 }

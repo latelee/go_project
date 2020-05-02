@@ -7,95 +7,68 @@ package gin
 import (
     // "fmt"
     "strconv"
-    "time"
+    //"time"
 
     //"k8s.io/klog"
 
     "github.com/gin-gonic/gin"
-    //"net/http"
 )
 
-// 用户信息
-type Person struct {
-    Id   int
-    Name string
-    City string
-    Age int
+// 设备信息
+type DeviceInfo struct {
+    Id      string
+    Ip      string
+    Mac     string
+    Location string
+    Version string
 }
 
-// http://127.0.0.1:8080/api/v1/userinfo/
-func FetchAllUsers(c *gin.Context) {
+// http://127.0.0.1:8080/device/v1/devlist/
+func FetchAllDevices(c *gin.Context) {
 
-/*
-   c.JSON(http.StatusOK, gin.H{
-            "message": "hello",
-            "location": "hell",
-            "time": "long long ago",
-        })
-*/
-
-    person := make([]Person, 3)
+    devInfo := make([]DeviceInfo, 3)
     
-    for i := 0; i < len(person); i++ {
-        person[i].Age = 20+i+1
-        person[i].Id = i+1
-        person[i].Name = "Late Lee"
-        person[i].City = "Shenzhen"
+    for i := 0; i < len(devInfo); i++ {
+        devInfo[i].Id = "test00" + strconv.Itoa(i+1)
+        devInfo[i].Ip = "192.168.0." + strconv.Itoa(i+1)
+        devInfo[i].Mac = "08:00:27:81:48:b" + strconv.Itoa(i+1)
+        devInfo[i].Location = "Shenzhen"
+        devInfo[i].Version = "v0.1"
     }
-    person[0].Name = "Jim Kent"
-    person[1].Name = "Kevin Clark"
-    
-    c.JSON(200, gin.H {
-        "result": person,
-        "count":  1,
-        })
-    
+/*
+    result := gin.H {
+        "result": devInfo,
+        "count":  3,
+    }
+*/
+    responseOK(devInfo, c)
 }
 
-var setHeartBeat = 1
-
-// http://127.0.0.1:8080/api/v1/userinfo/1
-// http://127.0.0.1:8080/api/v1/userinfo/250
-func FetchSingleUser(c *gin.Context) {
+// http://127.0.0.1:8080/device/v1/devlist/1
+// http://127.0.0.1:8080/device/v1/devlist/250
+func FetchSingleDevice(c *gin.Context) {
     id := c.Param("id")
 
-    var (
-        person Person
-        result gin.H
-    )
-    nid, _ := strconv.Atoi(id)
-
-    // 临时测试
-    if nid == 0 {
-        setHeartBeat = 0
-    } else {
-        setHeartBeat = 1
-    }
+    var devInfo DeviceInfo
     
     // 理论上是查询，此处从简，直接赋值，根据ID区别
-    person.Name = "Late Lee"
-    person.Age = 33
-    person.Id = nid
-    person.City = "Beijing"
-    if nid == 250 {
-        result = gin.H {
-        "result": nil,
-        "count":  0,
-        }
-    } else {
-    result = gin.H {
-        "result": person,
-        "count":  1,
-        }
-    }
+    devInfo.Id = id
+    devInfo.Ip = "192.168.0.1"
+    devInfo.Mac = "08:00:27:81:48:ba"
+    devInfo.Location = "Shenzhen"
+    devInfo.Version = "v0.1"
 
-    sendMsg := &BaseMessag{
-        Id: id,
-        Op: "back",
-        Timestamp: time.Now().UnixNano() / 1e6,
-        Data: person,
+    //  测试不存在的设备返回信息
+    if id == "250" {
+        //responseFailed(-1, c)
+        responseFailedMsg(-1, "No such device", c)
+        return
     }
-    
-    WSSend(sendMsg)
-    c.JSON(200, result)
+/*
+    result := gin.H {
+        "result": devInfo,
+        "count":  1,
+    }
+*/
+    responseOK(devInfo, c)
 }

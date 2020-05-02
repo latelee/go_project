@@ -2,7 +2,7 @@ package gin
 
 import (
     "sync"
-    "github.com/latelee/go_project/app/conf"
+    "webdemo/app/conf"
 )
 
 var Config ginConfig

@@ -1,9 +1,10 @@
-module github.com/latelee/go_project
+module webdemo
 
 go 1.13
 
 require (
 	github.com/gin-gonic/gin v1.5.0
+	github.com/gorilla/websocket v1.4.0
 	github.com/jeanphorn/log4go v0.0.0-20190526082429-7dbb8deb9468 // indirect
 	github.com/kubeedge/beehive v0.0.0-20191017124426-ba571a087934
 	github.com/spf13/cobra v0.0.6

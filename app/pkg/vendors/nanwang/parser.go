@@ -1,7 +1,7 @@
 package nanwang
 
 import (
-    "github.com/latelee/go_project/pkg/com"
+    "webdemo/pkg/com"
     "k8s.io/klog"
 
     //"strings"

@@ -5,7 +5,7 @@ import (
     "os"
     "path"
     "io/ioutil"
-    //"github.com/latelee/go_project/pkg/com"
+    //"webdemo/pkg/com"
     "gopkg.in/yaml.v2"
     "k8s.io/klog"
     
@@ -95,19 +95,9 @@ func newDefaultConfig() *AppCoreConfig {
                 Enable:         true,
                 Port:           4000,
             },
-            UpdServer: &UpdServer{
-                Enable:         true,
-                Port:           10086,
-            },
             TcpServer: &TcpServer{
                 Enable:         true,
                 Port:           8080,
-            },
-            DevServer: &DevServer{
-                Enable:         true,
-                Name:           "unknown",
-                Protocol:       "unknown",
-                Port:           9000,
             },
         }, // end of Modules
     }

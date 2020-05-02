@@ -9,14 +9,6 @@ modules:
   gin:
     enable: true
     port: 8080
-  updserver:
-    enable: true
-    port: 10086
   tcpserver:
     enable: true
-    port: 8080
-  devserver:
-    enable: true
-    name: unknown
-    protocol: unknown
-    port: 9000
+    port: 8081
