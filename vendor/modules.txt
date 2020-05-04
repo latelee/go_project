@@ -1,0 +1,70 @@
+# github.com/fsnotify/fsnotify v1.4.7
+github.com/fsnotify/fsnotify
+# github.com/gin-contrib/sse v0.1.0
+github.com/gin-contrib/sse
+# github.com/gin-gonic/gin v1.5.0
+github.com/gin-gonic/gin
+github.com/gin-gonic/gin/binding
+github.com/gin-gonic/gin/internal/json
+github.com/gin-gonic/gin/render
+# github.com/go-chassis/go-archaius v0.20.0
+github.com/go-chassis/go-archaius
+github.com/go-chassis/go-archaius/core
+github.com/go-chassis/go-archaius/core/cast
+github.com/go-chassis/go-archaius/core/config-manager
+github.com/go-chassis/go-archaius/core/event-system
+github.com/go-chassis/go-archaius/sources/commandline-source
+github.com/go-chassis/go-archaius/sources/configcenter
+github.com/go-chassis/go-archaius/sources/enviromentvariable-source
+github.com/go-chassis/go-archaius/sources/file-source
+github.com/go-chassis/go-archaius/sources/memory-source
+github.com/go-chassis/go-archaius/sources/utils
+# github.com/go-chassis/go-chassis-config v0.10.0
+github.com/go-chassis/go-chassis-config
+# github.com/go-mesh/openlogging v1.0.1-0.20181205082104-3d418c478b2d
+github.com/go-mesh/openlogging
+# github.com/go-playground/locales v0.12.1
+github.com/go-playground/locales
+github.com/go-playground/locales/currency
+# github.com/go-playground/universal-translator v0.16.0
+github.com/go-playground/universal-translator
+# github.com/golang/protobuf v1.3.2
+github.com/golang/protobuf/proto
+# github.com/gorilla/websocket v1.4.0
+github.com/gorilla/websocket
+# github.com/inconshreveable/mousetrap v1.0.0
+github.com/inconshreveable/mousetrap
+# github.com/json-iterator/go v1.1.7
+github.com/json-iterator/go
+# github.com/kubeedge/beehive v0.0.0-20191017124426-ba571a087934
+github.com/kubeedge/beehive/pkg/common/config
+github.com/kubeedge/beehive/pkg/common/util
+github.com/kubeedge/beehive/pkg/core
+github.com/kubeedge/beehive/pkg/core/context
+github.com/kubeedge/beehive/pkg/core/model
+# github.com/leodido/go-urn v1.1.0
+github.com/leodido/go-urn
+# github.com/mattn/go-isatty v0.0.9
+github.com/mattn/go-isatty
+# github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd
+github.com/modern-go/concurrent
+# github.com/modern-go/reflect2 v1.0.1
+github.com/modern-go/reflect2
+# github.com/satori/go.uuid v1.2.0
+github.com/satori/go.uuid
+# github.com/spf13/cast v1.3.0
+github.com/spf13/cast
+# github.com/spf13/cobra v0.0.6
+github.com/spf13/cobra
+# github.com/spf13/pflag v1.0.5
+github.com/spf13/pflag
+# github.com/ugorji/go/codec v1.1.7
+github.com/ugorji/go/codec
+# golang.org/x/sys v0.0.0-20190813064441-fde4db37ae7a
+golang.org/x/sys/unix
+# gopkg.in/go-playground/validator.v9 v9.29.1
+gopkg.in/go-playground/validator.v9
+# gopkg.in/yaml.v2 v2.2.8
+gopkg.in/yaml.v2
+# k8s.io/klog v1.0.0
+k8s.io/klog
