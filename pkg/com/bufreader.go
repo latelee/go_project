@@ -29,6 +29,14 @@ func NewBufferReader(buf []byte) *BufferReader {
     };
 }
 
+func NewBufferReader1(buf []byte, len int) *BufferReader {
+	return &BufferReader{
+        Buffer: buf,
+        length: len,
+        offset: 0,
+    };
+}
+
 func (b *BufferReader) Init(buf []byte) {
     b.Buffer = buf;
     b.offset = 0;
@@ -37,7 +45,7 @@ func (b *BufferReader) Init(buf []byte) {
 func (b *BufferReader) Dump() {
     fmt.Printf("in BufferReader (len %d)\n", b.length)
     Dump(b.Buffer, b.length)
-    fmt.Printf("%v\n", hex.Dump(b.Buffer))
+    //fmt.Printf("%v\n", hex.Dump(b.Buffer))
 }
 
 func (b *BufferReader) ReadUint8() (o uint8) {

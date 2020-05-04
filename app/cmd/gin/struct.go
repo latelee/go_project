@@ -17,6 +17,7 @@ type BaseMessage struct {
 type MessageResponse struct {
     Code int `json:"code"`
     Msg string `json:"msg"`
-    Timestamp int64 `json:"timestamp"`
     Data interface{} `json:"data"`
 }
+
+// http客户端请求的

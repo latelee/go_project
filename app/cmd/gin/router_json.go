@@ -1,5 +1,6 @@
 /*
 本文返回json格式
+获取设备信息接口
 */
 
 package gin
@@ -23,8 +24,9 @@ type DeviceInfo struct {
     Version string
 }
 
+// 获取所有设备列表
 // http://127.0.0.1:8080/device/v1/devlist/
-func FetchAllDevices(c *gin.Context) {
+func GetAllDevices(ctx *gin.Context) {
 
     devInfo := make([]DeviceInfo, 3)
     
@@ -41,13 +43,14 @@ func FetchAllDevices(c *gin.Context) {
         "count":  3,
     }
 */
-    responseOK(devInfo, c)
+    responseOK(devInfo, ctx)
 }
 
+// 获取指定设备列表
 // http://127.0.0.1:8080/device/v1/devlist/1
 // http://127.0.0.1:8080/device/v1/devlist/250
-func FetchSingleDevice(c *gin.Context) {
-    id := c.Param("id")
+func GetSingleDevice(ctx *gin.Context) {
+    id := ctx.Param("id")
 
     var devInfo DeviceInfo
     
@@ -60,8 +63,8 @@ func FetchSingleDevice(c *gin.Context) {
 
     //  测试不存在的设备返回信息
     if id == "250" {
-        //responseFailed(-1, c)
-        responseFailedMsg(-1, "No such device", c)
+        //responseFailed(-1, ctx)
+        responseFailedMsg(-1, "No such device", ctx)
         return
     }
 /*
@@ -70,5 +73,6 @@ func FetchSingleDevice(c *gin.Context) {
         "count":  1,
     }
 */
-    responseOK(devInfo, c)
+
+    responseOK(devInfo, ctx)
 }

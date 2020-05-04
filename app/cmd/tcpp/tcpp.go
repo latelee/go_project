@@ -12,11 +12,11 @@ import (
 
 	"net"
 	"strings"
-    "encoding/hex"
+    //"encoding/hex"
 )
 
 const (
-	TCP_RECV_LEN        = 512
+	TCP_RECV_LEN = 1024
 )
 
 type tcpServer struct {
@@ -86,34 +86,33 @@ func handleConnection(conn net.Conn) {
 	RemoteAddr := conn.RemoteAddr().String()
 	ip := (strings.Split(RemoteAddr, ":"))[0]
     port := (strings.Split(RemoteAddr, ":"))[1]
-	klog.Infof("New TCP Connect from [%s:%s] ...", ip, port)
+	klog.Infof("New TCP Connect from [%s:%s]", ip, port)
 
 	for {
         select {
 		case <-beehiveContext.Done():
 			klog.Info("Stop tcp handle")
+            conn.Close()
 			return
 		default:
 		}
+        // 1.接收
 		buf := make([]byte, TCP_RECV_LEN)
 		n, err := conn.Read(buf)
 		if err != nil {
-			if err.Error() != "EOF" {
-				klog.Errorln(err)
+            klog.Errorln(err)
+			if err.Error() == "EOF" {
+				conn.Close()
 			}
 			break
 		}
-		klog.Infof("TCP Received from [%s] buf: %v %v", RemoteAddr, hex.Dump(buf[:n]), string(buf))
-
-        // strings.Compare(string(buf), "world")
-		if buf[0] == 0x68 {
-            backbuf := "hello_back11111111111111111111111111111111111"
-            klog.Info("send ", backbuf)
-            conn.Write([]byte(backbuf))
-		} else if  buf[0] == 0x77 {
-            backbuf := "world_back22222222222222222222222222222222222222"
-            klog.Info("send1 ", backbuf)
-            conn.Write([]byte(backbuf))
+		//klog.Infof("TCP Received from [%s] buf: %v", RemoteAddr, hex.Dump(buf[:n]))
+        // 2.处理
+        backbuf, backlen := handle(buf, n)
+        
+        // 3.返回
+        if backlen > 0 {
+            conn.Write(backbuf)
         }
 	}
 }

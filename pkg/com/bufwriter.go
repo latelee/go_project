@@ -17,13 +17,13 @@ import (
 type BufferWriter struct {
     Buffer []byte
     offset int
-    length int
+    Length int
 }
 
 func NewBufferWriter(n int) *BufferWriter {
 	return &BufferWriter{
         Buffer: make([]byte, n),
-        length: n,
+        Length: n,
         offset: 0,
     }
 }
@@ -34,7 +34,7 @@ func (b *BufferWriter) Init(n int) {
 }
 
 func (b *BufferWriter) Dump() {
-    fmt.Printf("in BufferWriter (len %d)\n", b.length)
+    fmt.Printf("in BufferWriter (len %d)\n", b.Length)
     Dump(b.Buffer, 30)
     fmt.Printf("%v\n", hex.Dump(b.Buffer))
 }
@@ -86,6 +86,11 @@ func (b *BufferWriter) WriteHexString(i string) {
 func (b *BufferWriter) WriteBuffer(i []byte) {
     copy(b.Buffer[b.offset:], i); // 直接用copy赋值
     b.offset += len(i);
+}
+
+func (b *BufferWriter) WriteBufferLen(i []byte, len int) {
+    copy(b.Buffer[b.offset:], i); // 直接用copy赋值
+    b.offset += len;
 }
 
 // 一个BCD码最大为99

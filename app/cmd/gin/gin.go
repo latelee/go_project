@@ -19,10 +19,6 @@ type ginServer struct {
     enable bool
 }
 
-func init() {
-    //core.Register(newginServer(true))
-}
-
 func newginServer(enable bool) *ginServer {
     return &ginServer{
         enable: enable,
@@ -58,10 +54,13 @@ func (a *ginServer) Start() {
     // 组
     v1 := router.Group("/device/v1/devlist")
     {
-        v1.GET("/", FetchAllDevices)
-        v1.GET("/:id", FetchSingleDevice)
+        v1.GET("/", GetAllDevices)
+        v1.GET("/:id", GetSingleDevice)
     }
 
+    router.POST("/device/v1/get", DeviceGetHandle)
+    router.POST("/device/v1/set", DeviceSetHandle)
+        
     /*
     // 组
     v2 := router.Group("/device/ws")
