@@ -268,7 +268,8 @@ func ToHexString(b []byte) (ostr string) {
     return;
 }
 
-// 简单解析版本
+// TODO：移动到其它文件
+// 简单解析版本 
 func ReadCP56Time2a(buf []byte) string {
     u1 := uint16(buf[0]);
     u2 := uint16(buf[1]);
@@ -447,4 +448,26 @@ func PrintByLine(w io.Writer, msg interface{}) {
 	default:
 		fmt.Fprintf(w, "%v\n", msg)
 	}
+}
+
+// TODO：测试
+func Str2Float64(str string, len int) float64 {
+	lenstr := "%." + strconv.Itoa(len) + "f"
+	value,_ := strconv.ParseFloat(str,64)
+	nstr := fmt.Sprintf(lenstr,value)
+	val,_ := strconv.ParseFloat(nstr,64)
+	return val
+}
+
+func Str2Float64Round(str string, prec int, round bool) float64 {
+	f,_ := strconv.ParseFloat(str,64)
+	return precision(f,prec,round)
+}
+
+func precision(f float64, prec int, round bool) float64 {
+	pow10_n := math.Pow10(prec)
+	if round {
+		return math.Trunc((f + 0.5/pow10_n)*pow10_n) / pow10_n
+	}
+	return math.Trunc((f)*pow10_n) / pow10_n
 }
