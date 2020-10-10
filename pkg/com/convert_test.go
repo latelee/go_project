@@ -3,6 +3,7 @@ package com
 
 import (
 	"fmt"
+	"strings"
 	"testing"
 )
 
@@ -14,7 +15,9 @@ type TestObj struct {
 }
 
 func TestConvert(t *testing.T) {
-
+	var s StrTo = StrTo([]byte("100695")[3:])
+	var s1 StrTo = StrTo([]byte("000102B7")[4:])
+	fmt.Println("str to int ", s.Int(), s1.IntHex())
 	fmt.Println("conv ", ToStr(100.56))
 
 	fmt.Println("Tofixed: ", ToFixed(6.5, 2))

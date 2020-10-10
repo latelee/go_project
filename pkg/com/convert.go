@@ -36,44 +36,39 @@ func (f StrTo) Exist() bool {
 	return string(f) != string(0x1E)
 }
 
-func (f StrTo) Uint8() (uint8, error) {
-	v, err := strconv.ParseUint(f.String(), 10, 8)
-	return uint8(v), err
+func (f StrTo) Uint8() (uint8) {
+	v, _ := strconv.ParseUint(f.String(), 10, 8)
+	return uint8(v)
 }
 
-func (f StrTo) Int() (int, error) {
-	v, err := strconv.ParseInt(f.String(), 10, 0)
-	return int(v), err
+func (f StrTo) Int() (int) {
+	v, _ := strconv.ParseInt(f.String(), 10, 0)
+	return int(v)
 }
 
-func (f StrTo) Int64() (int64, error) {
-	v, err := strconv.ParseInt(f.String(), 10, 64)
-	return int64(v), err
+func (f StrTo) Int64() (int64) {
+	v, _ := strconv.ParseInt(f.String(), 10, 64)
+	return int64(v)
 }
 
-func (f StrTo) Float64() (float64, error) {
-	v, err := strconv.ParseFloat(f.String(), 64)
-	return float64(v), err
+func (f StrTo) Float64() (float64) {
+	v, _ := strconv.ParseFloat(f.String(), 64)
+	return float64(v)
 }
 
-func (f StrTo) MustUint8() uint8 {
-	v, _ := f.Uint8()
-	return v
+func (f StrTo) Uint8Hex() (uint8) {
+	v, _ := strconv.ParseUint(f.String(), 16, 8)
+	return uint8(v)
 }
 
-func (f StrTo) MustInt() int {
-	v, _ := f.Int()
-	return v
+func (f StrTo) IntHex() (int) {
+	v, _ := strconv.ParseInt(f.String(), 16, 0)
+	return int(v)
 }
 
-func (f StrTo) MustInt64() int64 {
-	v, _ := f.Int64()
-	return v
-}
-
-func (f StrTo) MustFloat64() float64 {
-	v, _ := f.Float64()
-	return v
+func (f StrTo) Int64Hex() (int64) {
+	v, _ := strconv.ParseInt(f.String(), 16, 64)
+	return int64(v)
 }
 
 func (f StrTo) String() string {
@@ -134,7 +129,7 @@ func (a argInt) Get(i int, args ...int) (r int) {
 }
 
 // HexStr2int converts hex format string to decimal number.
-func HexStr2int(hexStr string) (int, error) {
+func HexStr2int(hexStr string) (int) {
 	num := 0
 	length := len(hexStr)
 	for i := 0; i < length; i++ {
@@ -147,12 +142,12 @@ func HexStr2int(hexStr string) (int, error) {
 		case char >= 'a' && char <= 'f':
 			factor = int(char) - 'a' + 10
 		default:
-			return -1, fmt.Errorf("invalid hex: %s", string(char))
+			return -1
 		}
 
 		num += factor * PowInt(16, i)
 	}
-	return num, nil
+	return num
 }
 
 // Int2HexStr converts decimal number to hex format string.
