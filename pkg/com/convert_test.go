@@ -73,7 +73,7 @@ func TestStruct(t *testing.T) {
     object2 := TestObj{
 		Name:  "James1",
 		Value: 128,
-		Size:  256,
+		Size:  259,
 		Guard: 56.4,
 	}
     
@@ -82,13 +82,13 @@ func TestStruct(t *testing.T) {
 
     PrintByLine1(os.Stdout, &TestObj{}, objects)
     
-    PrintByLineStruct(os.Stdout, &object1)
+    PrintByLineStruct(os.Stdout, &object1, "Name", "Value")
 
     //var object2 TestObj
     //object2.Name = "Kent"
     //PrintByLine1(os.Stdout, object2)
     
-    //info := CompareStruct(&object1, &object2)
-    //fmt.Println("compare: ", info)
+    info := CompareStruct(&object1, &object2, 0, "Name")
+    fmt.Println("compare: ", info)
 
 }

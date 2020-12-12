@@ -493,15 +493,45 @@ func PrintByLine1(w io.Writer, structname interface{}, data interface{}) {
 }
 
 
-func PrintByLineStruct(w io.Writer, data interface{}) {
+func PrintByLineStruct(w io.Writer, data interface{}, names ...string) {
 
     object := reflect.ValueOf(data)
     myref := object.Elem()
 
+    var skipNamess []string
+    //skipNames := make(map[string]int)
+    
+    for _, item := range names {
+        //skipNames[item] = 0
+        skipNamess = append(skipNamess, item)
+    }
+
+    //for i := 0; i < myref.NumField(); i++ {
+    //    if _, ok := skipNames[myref.Type().Field(i).Name]; ok {
+    //        continue
+    //    }
+    //    fmt.Fprintf(w, "+%v+ ", myref.Type().Field(i).Name)
+    //}
+    //fmt.Fprintf(w, "\n")
+    
+    check := func(a string, b []string) bool{
+		for _, item := range b {
+            if item == a {
+                return true
+            }
+        }
+        return false
+	}
+    
     for i := 0; i < myref.NumField(); i++ {
-        fmt.Fprintf(w, "+%v+ ", myref.Type().Field(i).Name)
+        
+        if ok := check(myref.Type().Field(i).Name, skipNamess); ok {
+            continue
+        }
+        fmt.Fprintf(w, "!! +%v+ ", myref.Type().Field(i).Name)
     }
     fmt.Fprintf(w, "\n")
+    
     
     for i := 0; i < myref.NumField(); i++ {
         fmt.Fprintf(w, "-%v- ", myref.Field(i).Interface())
@@ -635,38 +665,67 @@ func IsFloatEqual(f1, f2 float64, point ...int) bool {
     }
 }
 /* 结构体对比，参数是指针类型
-遍历结构体，判断类型，其它可添加
+point指定浮点对比精度
+names 为不对比的字段名称
+
+遍历结构体，判断类型，其它可添加-->每个类型都要一一添加，是否有方便方式？
 如不同，返回不同的字段信息
 */
-func CompareStruct(data, data1 interface{}, point ...int) (info string) {
+func CompareStruct(data, data1 interface{}, point int, names ...string) (info string) {
     ret := false
 	info = ""
+    var skipNames []string
+    for _, item := range names {
+        skipNames = append(skipNames, item)
+    }
+    
+    check := func(a string, b []string) bool{
+		for _, item := range b {
+            if item == a {
+                return true
+            }
+        }
+        return false
+	}
 
     object := reflect.ValueOf(data)
     myref := object.Elem()
-    typeOfType := myref.Type()
-    for i := 0; i < myref.NumField(); i++{
+    //typeOfType := myref.Type()
+    for i := 0; i < myref.NumField(); i++ {
+        // 如果不需要对比，跳过
+        if ok := check(myref.Type().Field(i).Name, skipNames); ok {
+            continue
+        }
+        
+        // 浮点数精度
+        mypoint := 4
+        if point != 0 {
+            mypoint = point
+        }
         field := myref.Field(i)
 		field1 := reflect.ValueOf(data1).Elem().Field(i)
 		switch field.Type().Name() {
 		case "float64":
-			mypoint := 4
-            if point != nil {
-                mypoint = point[0]
-            }
             ret = IsFloatEqual(field.Interface().(float64), field1.Interface().(float64), mypoint)
+        case "float32":
+            ret = IsFloatEqual(float64(field.Interface().(float32)), float64(field1.Interface().(float32)), mypoint)
 		case "int":
 			ret = field.Interface().(int) == field1.Interface().(int)
+        case "int32":
+			ret = field.Interface().(int32) == field1.Interface().(int32)
+        case "uint32":
+			ret = field.Interface().(uint32) == field1.Interface().(uint32)
 		case "int64":
 			ret = field.Interface().(int64) == field1.Interface().(int64)
+        case "uint64":
+			ret = field.Interface().(uint64) == field1.Interface().(uint64)
 		case "string":
 			ret = field.Interface().(string) == field1.Interface().(string)
 		default:
 			ret = false 
 		}
-
 		if ret == false {
-			info1 := fmt.Sprintf("%s: %v != %v ", typeOfType.Field(i).Name, field.Interface(), field1.Interface())
+			info1 := fmt.Sprintf("%s: %v != %v ", myref.Type().Field(i).Name, field.Interface(), field1.Interface())
 			info = info + info1
 		}
 	}
