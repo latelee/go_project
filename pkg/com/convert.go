@@ -449,6 +449,68 @@ func PrintByLine(w io.Writer, data interface{}) {
 	}
 }
 
+// TODO 可否单独打印出结构体的字段？
+func PrintByLine1(w io.Writer, structname interface{}, data interface{}) {
+	if w == os.Stderr {
+		fmt.Fprintf(os.Stderr, "error: ")
+	}
+
+	title := GetStructFieldName(structname)
+	//fmt.Fprintf(w, "%v\n\n", title)
+    for _, v := range title {
+        fmt.Fprintf(w, "%v  ", v)
+    }
+    fmt.Fprintf(w, "\n\n")
+    
+	t := reflect.TypeOf(data)
+
+	object := reflect.ValueOf(data)
+	if object.Len() == 0 {
+		return
+	}
+
+    fmt.Println(t)
+    fmt.Println(object)
+    
+    
+	fmt.Fprintf(w, "total: %d\n", object.Len())
+	// fmt.Fprintf(w, "[\n")
+	switch t.Kind() {
+	case reflect.Slice, reflect.Array:
+		for i := 0; i < object.Len(); i++ {
+			fmt.Fprintf(w, "%d  -%v-\n", i+1, object.Index(i))
+		}
+	case reflect.Map:
+		iter := object.MapRange()
+		i := 0
+		for iter.Next() {
+			fmt.Fprintf(w, "%d %v: %v\n", i+1, iter.Key(), iter.Value())
+			i += 1
+		}
+	default:
+		fmt.Fprintf(w, "%v\n", data)
+	}
+}
+
+
+func PrintByLineStruct(w io.Writer, data interface{}) {
+
+    object := reflect.ValueOf(data)
+    myref := object.Elem()
+
+    for i := 0; i < myref.NumField(); i++ {
+        fmt.Fprintf(w, "+%v+ ", myref.Type().Field(i).Name)
+    }
+    fmt.Fprintf(w, "\n")
+    
+    for i := 0; i < myref.NumField(); i++ {
+        fmt.Fprintf(w, "-%v- ", myref.Field(i).Interface())
+    }
+    fmt.Fprintf(w, "\n")
+    
+    
+}
+
 // 将结构体打印到文件，第一行为结构体变量
 func SaveByLine(filename string, structname interface{}, data interface{}) {
 
@@ -485,7 +547,6 @@ func SaveByLine(filename string, structname interface{}, data interface{}) {
 	}
 	
 }
-
 
 // TODO：测试
 func Str2Float64(str string, len int) float64 {

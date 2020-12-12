@@ -3,6 +3,7 @@ package com
 
 import (
 	"fmt"
+    "os"
 	//"strings"
 	"testing"
 )
@@ -56,4 +57,38 @@ func TestConvert(t *testing.T) {
 	fmt.Println(GetStructFieldName(&TestObj{}))
 	fmt.Println(GetStructFieldType(&TestObj{}))
 	
+}
+
+
+func TestStruct(t *testing.T) {
+
+    var objects []TestObj
+
+    object1 := TestObj{
+		Name:  "James",
+		Value: 128,
+		Size:  256,
+		Guard: 56.4,
+	}
+    object2 := TestObj{
+		Name:  "James1",
+		Value: 128,
+		Size:  256,
+		Guard: 56.4,
+	}
+    
+    objects = append(objects, object1)
+    objects = append(objects, object2)
+
+    PrintByLine1(os.Stdout, &TestObj{}, objects)
+    
+    PrintByLineStruct(os.Stdout, &object1)
+
+    //var object2 TestObj
+    //object2.Name = "Kent"
+    //PrintByLine1(os.Stdout, object2)
+    
+    //info := CompareStruct(&object1, &object2)
+    //fmt.Println("compare: ", info)
+
 }
