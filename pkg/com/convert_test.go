@@ -3,7 +3,7 @@ package com
 
 import (
 	"fmt"
-	"strings"
+	//"strings"
 	"testing"
 )
 
@@ -17,6 +17,8 @@ type TestObj struct {
 func TestConvert(t *testing.T) {
 	var s StrTo = StrTo([]byte("100695")[3:])
 	var s1 StrTo = StrTo([]byte("000102B7")[4:])
+
+	fmt.Println("s int and inthex", s.Int(), s.IntHex())
 	fmt.Println("str to int ", s.Int(), s1.IntHex())
 	fmt.Println("conv ", ToStr(100.56))
 
@@ -49,5 +51,9 @@ func TestConvert(t *testing.T) {
     if err != nil {
 		fmt.Printf("Unmarshal failed")
 	}
-    fmt.Println("data: ", o)
+	fmt.Println("data: ", o)
+	
+	fmt.Println(GetStructFieldName(&TestObj{}))
+	fmt.Println(GetStructFieldType(&TestObj{}))
+	
 }

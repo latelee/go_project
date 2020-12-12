@@ -657,7 +657,7 @@ func (l *loggingT) formatHeader(s severity, file string, line int) *buffer {
 	buf.tmp[20] = '.'
 	buf.nDigits(3, 21, now.Nanosecond()/1000/1000, '0')
 	buf.tmp[24] = ' '
-	buf.Write(buf.tmp[:30])
+	buf.Write(buf.tmp[:25])
 	buf.WriteString(file)
 	buf.tmp[0] = ':'
 	n := buf.someDigits(1, line)

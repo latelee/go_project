@@ -419,31 +419,73 @@ func Dump1(w io.Writer, by []byte, len int) {
 }
 
 // 将数组、map等，按行打印，默认fmt.Println是一行
-func PrintByLine(w io.Writer, msg interface{}) {
+// TODO map的测试
+func PrintByLine(w io.Writer, data interface{}) {
 	if w == os.Stderr {
 		fmt.Fprintf(os.Stderr, "error: ")
 	}
-	t := reflect.TypeOf(msg)
+	t := reflect.TypeOf(data)
+
+	v := reflect.ValueOf(data)
+	if v.Len() == 0 {
+		return
+	}
+	fmt.Fprintf(w, "total: %d\n", v.Len())
+	// fmt.Fprintf(w, "[\n")
 	switch t.Kind() {
 	case reflect.Slice, reflect.Array:
-		fmt.Fprintf(w, "[\n")
-		v := reflect.ValueOf(msg)
 		for i := 0; i < v.Len(); i++ {
-			fmt.Fprintf(w, "  %v\n", v.Index(i))
+			fmt.Fprintf(w, "%d  %v\n", i+1, v.Index(i))
 		}
-		fmt.Fprintf(w, "]\n")
 	case reflect.Map:
-		fmt.Fprintf(w, "[\n")
-		v := reflect.ValueOf(msg)
 		iter := v.MapRange()
+		i := 0
 		for iter.Next() {
-			fmt.Fprintf(w, "  %v: %v\n", iter.Key(), iter.Value())
+			fmt.Fprintf(w, "%d %v: %v\n", i+1, iter.Key(), iter.Value())
+			i += 1
 		}
-		fmt.Fprintf(w, "]\n")
 	default:
-		fmt.Fprintf(w, "%v\n", msg)
+		fmt.Fprintf(w, "%v\n", data)
 	}
 }
+
+// 将结构体打印到文件，第一行为结构体变量
+func SaveByLine(filename string, structname interface{}, data interface{}) {
+
+	w, err := os.OpenFile(filename, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, os.ModePerm)
+	if err != nil {
+		return;
+	}
+	defer w.Close()
+
+	title := GetStructFieldName(structname)
+	fmt.Fprintf(w, "%v\n\n", title)
+
+	t := reflect.TypeOf(data)
+	v := reflect.ValueOf(data)
+	if v.Len() == 0 {
+		return
+	}
+	fmt.Fprintf(w, "total: %d\n", v.Len())
+	//fmt.Fprintf(w, "[\n")
+	switch t.Kind() {
+	case reflect.Slice, reflect.Array:
+		for i := 0; i < v.Len(); i++ {
+			fmt.Fprintf(w, "%d  %v\n", i+1, v.Index(i))
+		}
+	case reflect.Map:
+		iter := v.MapRange()
+		i := 0
+		for iter.Next() {
+			fmt.Fprintf(w, "%d %v: %v\n", i+1, iter.Key(), iter.Value())
+			i += 1
+		}
+	default:
+		fmt.Fprintf(w, "%v\n", data)
+	}
+	
+}
+
 
 // TODO：测试
 func Str2Float64(str string, len int) float64 {
@@ -465,4 +507,107 @@ func precision(f float64, prec int, round bool) float64 {
 		return math.Trunc((f + 0.5/pow10_n)*pow10_n) / pow10_n
 	}
 	return math.Trunc((f)*pow10_n) / pow10_n
+}
+
+
+//获取结构体中字段的名称及对应的类型
+func GetStructFieldName(structName interface{}) ([]string) {
+	t := reflect.TypeOf(structName)
+	if t.Kind() == reflect.Ptr {
+		t = t.Elem()
+	}
+	if t.Kind() != reflect.Struct {
+		fmt.Println("Check type error not Struct")
+		return nil
+	}
+    object := reflect.ValueOf(structName)
+    myref := object.Elem()
+    typeOfType := myref.Type()
+    
+	fieldNum := myref.NumField()
+	result := make([]string, 0, fieldNum)
+	for i := 0; i < fieldNum; i++ {
+		result = append(result, typeOfType.Field(i).Name)
+	}
+	return result
+}
+
+func GetStructFieldType(structName interface{}) ([]string) {
+	t := reflect.TypeOf(structName)
+	if t.Kind() == reflect.Ptr {
+		t = t.Elem()
+	}
+	if t.Kind() != reflect.Struct {
+		fmt.Println("Check type error not Struct")
+		return nil
+	}
+    object := reflect.ValueOf(structName)
+    myref := object.Elem()
+
+	fieldNum := myref.NumField()
+	result := make([]string, 0, fieldNum)
+	for i := 0; i < fieldNum; i++ {
+        result = append(result, myref.Field(i).Type().Name())
+	}
+	return result
+}
+
+
+// 对比小数点后N位，N由point指定
+func IsFloatEqual(f1, f2 float64, point ...int) bool {
+    var mypoint int = 4
+    if point != nil {
+        mypoint = point[0]
+    }
+    if mypoint == 1 {
+        return math.Abs(f1 - f2) <= 0.1
+    } else if mypoint == 2 {
+        return math.Abs(f1 - f2) <= 0.01
+    } else if mypoint == 3 {
+        return math.Abs(f1 - f2) <= 0.001
+    } else if mypoint == 4 {
+        return math.Abs(f1 - f2) <= 0.0001
+    } else if mypoint == 5 {
+        return math.Abs(f1 - f2) <= 0.00001
+    } else {
+        return math.Abs(f1 - f2) <= 0.0001
+    }
+}
+/* 结构体对比，参数是指针类型
+遍历结构体，判断类型，其它可添加
+如不同，返回不同的字段信息
+*/
+func CompareStruct(data, data1 interface{}, point ...int) (info string) {
+    ret := false
+	info = ""
+
+    object := reflect.ValueOf(data)
+    myref := object.Elem()
+    typeOfType := myref.Type()
+    for i := 0; i < myref.NumField(); i++{
+        field := myref.Field(i)
+		field1 := reflect.ValueOf(data1).Elem().Field(i)
+		switch field.Type().Name() {
+		case "float64":
+			mypoint := 4
+            if point != nil {
+                mypoint = point[0]
+            }
+            ret = IsFloatEqual(field.Interface().(float64), field1.Interface().(float64), mypoint)
+		case "int":
+			ret = field.Interface().(int) == field1.Interface().(int)
+		case "int64":
+			ret = field.Interface().(int64) == field1.Interface().(int64)
+		case "string":
+			ret = field.Interface().(string) == field1.Interface().(string)
+		default:
+			ret = false 
+		}
+
+		if ret == false {
+			info1 := fmt.Sprintf("%s: %v != %v ", typeOfType.Field(i).Name, field.Interface(), field1.Interface())
+			info = info + info1
+		}
+	}
+    return info
 }

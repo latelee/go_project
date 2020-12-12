@@ -54,3 +54,18 @@ func IsEmailRFC(email string) bool {
 func IsUrl(url string) bool {
 	return regex_url.MatchString(url)
 }
+
+func IsNumber(str string) bool {
+	regex_pattern := regexp.MustCompile("^[0-9]*$")
+	return regex_pattern.MatchString(str)
+}
+
+func IsAlphabet(str string) bool {
+	regex_pattern := regexp.MustCompile("^[A-Za-z]+$")
+	return regex_pattern.MatchString(str)
+}
+
+func IsNormalString(str string) bool {
+	regex_pattern := regexp.MustCompile("^[A-Za-z0-9]+$")
+	return regex_pattern.MatchString(str)
+}

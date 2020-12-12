@@ -15,6 +15,7 @@
 package com
 
 import (
+	// "fmt"
 	"testing"
 )
 
@@ -53,6 +54,48 @@ func TestIsUrl(t *testing.T) {
 		b := IsUrl(u)
 		if b != r {
 			t.Errorf("IsUrl:\n Expect => %v\n Got => %v\n", r, b)
+		}
+	}
+}
+
+func TestRegex(t *testing.T) {
+	// numbers := map[string]bool{
+	// 	`4444`:	true,
+	// 	`44f4`: false,
+	// 	`ffff`: false,
+	// }
+	// for e, r := range numbers {
+	// 	b := IsNumber(e)
+	// 	if b != r {
+	// 		t.Errorf("'%v' IsNumber: Expect => %v Got => %v\n", e, r, b)
+	// 	}
+	// }
+
+	// letters := map[string]bool{
+	// 	`ffff`:	true,
+	// 	`44f4`: false,
+	// 	`4444`: false,
+	// }
+	// for e, r := range letters {
+	// 	b := IsAlphabet(e)
+	// 	if b != r {
+	// 		t.Errorf("'%v' IsAlphabet: Expect => %v Got => %v\n", e, r, b)
+	// 	}
+	// }
+
+	strs := map[string]bool{
+		`ffff`:	true,
+		`44f4`: true,
+		`4444`: true,
+		`ff f`: false,
+		`ff\r`: false,
+		`ff\n`: false,
+		`$ff|`: false,
+	}
+	for e, r := range strs {
+		b := IsNormalString(e)
+		if b != r {
+			t.Errorf("'%v' IsNormalString: Expect => %v Got => %v\n", e, r, b)
 		}
 	}
 }
