@@ -1,14 +1,17 @@
-typemeta:
-  kind: myKind
-  apiversion: config.test.io/v1alpha1
-database:
-  drivername: sqlite3
-  aliasname: default
-  datasource: /var/lib/my.db
+
+
+dbserver:
+  datasource: /var/lib/my.db3
+
 modules:
   gin:
     enable: true
     port: 8080
   tcpserver:
-    enable: true
+    enable: false
     port: 8081
+
+vendors:
+  - foo
+  - bar
+  - hello

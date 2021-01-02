@@ -30,9 +30,8 @@ func newtcpServer(enable bool) *tcpServer {
     }
 }
 
-func Register(opts *conf.TcpServer) {
-    initConfig(opts)
-    core.Register(newtcpServer(opts.Enable))
+func Register() {
+    core.Register(newtcpServer(conf.TcpServer.Enable))
 }
 
 func (a *tcpServer) Name() string {
@@ -58,7 +57,7 @@ func (a *tcpServer) Cleanup() {
 // TODO：添加断开的处理
 
 func TcpServer() {
-	IpAndPort := "0.0.0.0:" + strconv.Itoa(Config.Port)
+	IpAndPort := "0.0.0.0:" + strconv.Itoa(conf.TcpServer.Port)
 	klog.Info("tcp listen on: ", IpAndPort)
 	ln, err := net.Listen("tcp", IpAndPort)
 	if err != nil {

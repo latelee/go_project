@@ -25,9 +25,8 @@ func newginServer(enable bool) *ginServer {
     }
 }
 
-func Register(opts *conf.Gin) {
-    initConfig(opts)
-    core.Register(newginServer(opts.Enable))
+func Register() {
+    core.Register(newginServer(conf.Gin.Enable))
 }
 
 func (a *ginServer) Name() string {
@@ -69,7 +68,7 @@ func (a *ginServer) Start() {
     }
     */
 
-	router.Run(":" + strconv.Itoa(Config.Port))
+	router.Run(":" + strconv.Itoa(conf.Gin.Port))
 }
 
 func (a *ginServer) Cleanup() {
