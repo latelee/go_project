@@ -4,10 +4,7 @@
 Version="v1.0"
 BuildTime=`date +'%Y-%m-%d %H:%M:%S'`
 
-
-#-ldflags "-X 'github.com/latelee/dbtool/cmd.BuildTime=${BuildTime}' -X 'github.com/latelee/dbtool/cmd.Version=${Version}'"
-
  
 cd ../
-GO111MODULE=on go build -mod vendor -o app/webdemo app/main.go
+GO111MODULE=on go build -mod vendor -ldflags "-X 'webdemo/app/cmd.BuildTime=${BuildTime}' -X 'webdemo/app/cmd.Version=${Version}'" -o app/webdemo app/main.go
 cd -
