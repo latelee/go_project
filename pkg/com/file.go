@@ -21,6 +21,7 @@ import (
 	"math"
 	"os"
 	"path"
+    "errors"
 )
 
 // Storage unit constants.
@@ -125,6 +126,13 @@ func CopyFile(dest, src string) error {
 	if err = os.Chtimes(dest, si.ModTime(), si.ModTime()); err != nil {
 		return err
 	}
+    
+    m1 := Md5ForFile(src)
+    m2 := Md5ForFile(dest)
+    if m1 != m2 {
+        info := fmt.Sprintf("src file md5 [%v] diffs dest file md5 [%v]", m1, m2)
+        return errors.New(info)
+    }
 	return os.Chmod(dest, si.Mode())
 }
 
