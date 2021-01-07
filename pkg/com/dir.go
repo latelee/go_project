@@ -20,6 +20,7 @@ import (
 	"os"
 	"path"
 	"strings"
+	"path/filepath"
 )
 
 // IsDir returns true if given path is a directory,
@@ -224,3 +225,12 @@ func MkDir(destPath string) error {
 func RmDir(destPath string) error {
 	return os.RemoveAll(destPath)
 }
+
+
+func GetCurrentDirectory() string {
+	dir, err := filepath.Abs(filepath.Dir(os.Args[0]))  //返回绝对路径  filepath.Dir(os.Args[0])去除最后一个元素的路径
+	if err != nil {
+	   return ""
+	}
+	return strings.Replace(dir, "\\", "/", -1) //将\替换成/
+ }
