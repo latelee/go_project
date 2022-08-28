@@ -6,6 +6,7 @@
 ![Viper](.github/logo.png?raw=true)
 
 [![Mentioned in Awesome Go](https://awesome.re/mentioned-badge-flat.svg)](https://github.com/avelino/awesome-go#configuration)
+[![run on repl.it](https://repl.it/badge/github/sagikazarmark/Viper-example)](https://repl.it/@sagikazarmark/Viper-example#main.go)
 
 [![GitHub Workflow Status](https://img.shields.io/github/workflow/status/spf13/viper/CI?style=flat-square)](https://github.com/spf13/viper/actions?query=workflow%3ACI)
 [![Join the chat at https://gitter.im/spf13/viper](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/spf13/viper?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
@@ -30,9 +31,11 @@ Many Go projects are built using Viper including:
 
 ## Install
 
-```console
+```shell
 go get github.com/spf13/viper
 ```
+
+**Note:** Viper uses [Go Modules](https://github.com/golang/go/wiki/Modules) to manage dependencies.
 
 
 ## What is Viper?
@@ -116,7 +119,7 @@ viper.AddConfigPath("$HOME/.appname")  // call multiple times to add many search
 viper.AddConfigPath(".")               // optionally look for config in the working directory
 err := viper.ReadInConfig() // Find and read the config file
 if err != nil { // Handle errors reading the config file
-	panic(fmt.Errorf("Fatal error config file: %s \n", err))
+	panic(fmt.Errorf("Fatal error config file: %w \n", err))
 }
 ```
 
@@ -124,11 +127,11 @@ You can handle the specific case where no config file is found like this:
 
 ```go
 if err := viper.ReadInConfig(); err != nil {
-    if _, ok := err.(viper.ConfigFileNotFoundError); ok {
-        // Config file not found; ignore error if desired
-    } else {
-        // Config file was found but another error was produced
-    }
+	if _, ok := err.(viper.ConfigFileNotFoundError); ok {
+		// Config file not found; ignore error if desired
+	} else {
+		// Config file was found but another error was produced
+	}
 }
 
 // Config file found and successfully parsed
@@ -172,10 +175,10 @@ Optionally you can provide a function for Viper to run each time a change occurs
 **Make sure you add all of the configPaths prior to calling `WatchConfig()`**
 
 ```go
-viper.WatchConfig()
 viper.OnConfigChange(func(e fsnotify.Event) {
 	fmt.Println("Config file changed:", e.Name)
 })
+viper.WatchConfig()
 ```
 
 ### Reading Config from io.Reader
@@ -266,7 +269,7 @@ the `BindEnv` is called.
 `AutomaticEnv` is a powerful helper especially when combined with
 `SetEnvPrefix`. When called, Viper will check for an environment variable any
 time a `viper.Get` request is made. It will apply the following rules. It will
-check for a environment variable with a name matching the key uppercased and
+check for an environment variable with a name matching the key uppercased and
 prefixed with the `EnvPrefix` if set.
 
 `SetEnvKeyReplacer` allows you to use a `strings.Replacer` object to rewrite Env
@@ -351,7 +354,7 @@ func main() {
 
 	i := viper.GetInt("flagname") // retrieve value from viper
 
-	...
+	// ...
 }
 ```
 
@@ -500,18 +503,18 @@ runtime_viper.Unmarshal(&runtime_conf)
 // open a goroutine to watch remote changes forever
 go func(){
 	for {
-	    time.Sleep(time.Second * 5) // delay after each request
+		time.Sleep(time.Second * 5) // delay after each request
 
-	    // currently, only tested with etcd support
-	    err := runtime_viper.WatchRemoteConfig()
-	    if err != nil {
-	        log.Errorf("unable to read remote config: %v", err)
-	        continue
-	    }
+		// currently, only tested with etcd support
+		err := runtime_viper.WatchRemoteConfig()
+		if err != nil {
+			log.Errorf("unable to read remote config: %v", err)
+			continue
+		}
 
-	    // unmarshal new config into our runtime config struct. you can also use channel
-	    // to implement a signal to notify the system of the changes
-	    runtime_viper.Unmarshal(&runtime_conf)
+		// unmarshal new config into our runtime config struct. you can also use channel
+		// to implement a signal to notify the system of the changes
+		runtime_viper.Unmarshal(&runtime_conf)
 	}
 }()
 ```
@@ -543,7 +546,7 @@ Example:
 ```go
 viper.GetString("logfile") // case-insensitive Setting & Getting
 if viper.GetBool("verbose") {
-    fmt.Println("verbose enabled")
+	fmt.Println("verbose enabled")
 }
 ```
 ### Accessing nested keys
@@ -666,7 +669,7 @@ So instead of doing that let's pass a Viper instance to the constructor that rep
 ```go
 cache1Config := viper.Sub("cache.cache1")
 if cache1Config == nil { // Sub returns nil if the key cannot be found
-    panic("cache configuration not found")
+	panic("cache configuration not found")
 }
 
 cache1 := NewCache(cache1Config)
@@ -678,10 +681,10 @@ Internally, the `NewCache` function can address `max-items` and `item-size` keys
 
 ```go
 func NewCache(v *Viper) *Cache {
-    return &Cache{
-        MaxItems: c.GetInt("max-items"),
-        ItemSize: c.GetInt("item-size"),
-    }
+	return &Cache{
+		MaxItems: v.GetInt("max-items"),
+		ItemSize: v.GetInt("item-size"),
+	}
 }
 ```
 
@@ -723,18 +726,18 @@ you have to change the delimiter:
 v := viper.NewWithOptions(viper.KeyDelimiter("::"))
 
 v.SetDefault("chart::values", map[string]interface{}{
-    "ingress": map[string]interface{}{
-        "annotations": map[string]interface{}{
-            "traefik.frontend.rule.type":                 "PathPrefix",
-            "traefik.ingress.kubernetes.io/ssl-redirect": "true",
-        },
-    },
+	"ingress": map[string]interface{}{
+		"annotations": map[string]interface{}{
+			"traefik.frontend.rule.type":                 "PathPrefix",
+			"traefik.ingress.kubernetes.io/ssl-redirect": "true",
+		},
+	},
 })
 
 type config struct {
 	Chart struct{
-        Values map[string]interface{}
-    }
+		Values map[string]interface{}
+	}
 }
 
 var C config
@@ -775,6 +778,15 @@ if err != nil {
 
 Viper uses [github.com/mitchellh/mapstructure](https://github.com/mitchellh/mapstructure) under the hood for unmarshaling values which uses `mapstructure` tags by default.
 
+### Decoding custom formats
+
+A frequently requested feature for Viper is adding more value formats and decoders.
+For example, parsing character (dot, comma, semicolon, etc) separated strings into slices.
+
+This is already available in Viper using mapstructure decode hooks.
+
+Read more about the details in [this blog post](https://sagikazarmark.hu/blog/decoding-custom-formats-with-viper/).
+
 ### Marshalling to string
 
 You may need to marshal all the settings held in viper into a string rather than write them to a file.
@@ -782,17 +794,17 @@ You can use your favorite format's marshaller with the config returned by `AllSe
 
 ```go
 import (
-    yaml "gopkg.in/yaml.v2"
-    // ...
+	yaml "gopkg.in/yaml.v2"
+	// ...
 )
 
 func yamlStringSettings() string {
-    c := viper.AllSettings()
-    bs, err := yaml.Marshal(c)
-    if err != nil {
-        log.Fatalf("unable to marshal config to YAML: %v", err)
-    }
-    return string(bs)
+	c := viper.AllSettings()
+	bs, err := yaml.Marshal(c)
+	if err != nil {
+		log.Fatalf("unable to marshal config to YAML: %v", err)
+	}
+	return string(bs)
 }
 ```
 
@@ -828,15 +840,35 @@ y.SetDefault("ContentDir", "foobar")
 When working with multiple vipers, it is up to the user to keep track of the
 different vipers.
 
+
 ## Q & A
 
-Q: Why is it called “Viper”?
+### Why is it called “Viper”?
 
 A: Viper is designed to be a [companion](http://en.wikipedia.org/wiki/Viper_(G.I._Joe))
 to [Cobra](https://github.com/spf13/cobra). While both can operate completely
 independently, together they make a powerful pair to handle much of your
 application foundation needs.
 
-Q: Why is it called “Cobra”?
+### Why is it called “Cobra”?
 
-A: Is there a better name for a [commander](http://en.wikipedia.org/wiki/Cobra_Commander)?
+Is there a better name for a [commander](http://en.wikipedia.org/wiki/Cobra_Commander)?
+
+### Does Viper support case sensitive keys?
+
+**tl;dr:** No.
+
+Viper merges configuration from various sources, many of which are either case insensitive or uses different casing than the rest of the sources (eg. env vars).
+In order to provide the best experience when using multiple sources, the decision has been made to make all keys case insensitive.
+
+There has been several attempts to implement case sensitivity, but unfortunately it's not that trivial. We might take a stab at implementing it in [Viper v2](https://github.com/spf13/viper/issues/772), but despite the initial noise, it does not seem to be requested that much.
+
+You can vote for case sensitivity by filling out this feedback form: https://forms.gle/R6faU74qPRPAzchZ9
+
+### Is it safe to concurrently read and write to a viper?
+
+No, you will need to synchronize access to the viper yourself (for example by using the `sync` package). Concurrent reads and writes can cause a panic.
+
+## Troubleshooting
+
+See [TROUBLESHOOTING.md](TROUBLESHOOTING.md).
