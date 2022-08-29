@@ -5,7 +5,7 @@ import (
 	//"flag"
 	// "fmt"
     "log"
-    //"errors"
+    "errors"
     "time"
     //"reflect"
     //"math"
@@ -15,14 +15,11 @@ import (
     _ "github.com/denisenkom/go-mssqldb"
     _ "github.com/mattn/go-oci8"
     _ "github.com/mattn/go-sqlite3"
-    "github.com/go-xorm/xorm"
-    "github.com/go-xorm/core"
+    "xorm.io/xorm"
+    "xorm.io/core"
     //"strings"
     //"encoding/binary"
 	//"io/ioutil"
-	
-	// conf "github.com/latelee/dbtool/common/conf"
-	
 )
 
 type DBParam struct {
@@ -35,43 +32,42 @@ type DBParam struct {
 
 ///////////////
 
-func CreateSqlServerXorm(dbstr string) (engine *xorm.Engine) {
-    engine, err := CreateXorm("mssql", dbstr)
+func CreateSqlServerXorm(dbstr string) (engine *xorm.Engine, err error) {
+    engine, err = CreateXorm("mssql", dbstr)
 	if err != nil {
 		log.Println("Open database failed:", err)
-		return nil
+		return nil, errors.New("open database failed: " + err.Error())
 	}
 
     return
 }
 
-func CreateMysqlXorm(dbstr string) (engine *xorm.Engine) {
-    engine, err := CreateXorm("mysql", dbstr)
+func CreateMysqlXorm(dbstr string) (engine *xorm.Engine, err error) {
+    engine, err = CreateXorm("mysql", dbstr)
 	if err != nil {
 		log.Println("Open database failed:", err)
-		return nil
+		return nil, errors.New("open database failed: " + err.Error())
 	}
     //log.Println("connect to ", dbParam.server, dbParam.database, "ok")
     
     return
 }
 
-func CreateSqlite3Xorm(dbname string) (engine *xorm.Engine) {
-    engine, err := CreateXorm("sqlite3", dbname)
+func CreateSqlite3Xorm(dbname string) (engine *xorm.Engine, err error) {
+    engine, err = CreateXorm("sqlite3", dbname)
 	if err != nil {
-		log.Println("Open database failed:", err)
-		return nil
+		return nil, errors.New("open database failed: " + err.Error())
 	}
     log.Println("connect to ", dbname, "ok")
 
     return
 }
 
-func CreateOracleXorm(dbstr string) (engine *xorm.Engine) {
-    engine, err := CreateXorm("oci8", dbstr)
+func CreateOracleXorm(dbstr string) (engine *xorm.Engine, err error) {
+    engine, err = CreateXorm("oci8", dbstr)
 	if err != nil {
 		log.Println("Open database failed:", err)
-		return nil
+		return nil, errors.New("open database failed: " + err.Error())
 	}
     //log.Println("connect to ", dbParam.server, dbParam.database, "ok")
 	

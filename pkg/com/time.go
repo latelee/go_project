@@ -21,10 +21,6 @@ import (
 	"time"
 )
 
-func GetNowTime(format string) string {
-	return DateT(time.Now(), format)
-}
-
 // Format unix time int64 to string
 func Date(ti int64, format string) string {
 	t := time.Unix(int64(ti), 0)

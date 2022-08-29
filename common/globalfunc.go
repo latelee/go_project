@@ -9,6 +9,6 @@ import (
 	//"database/sql"
 	//"os"
 	//"strings"
-	//"k8s.io/klog"
+	//"webdemo/pkg/klog"
 )
 

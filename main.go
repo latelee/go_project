@@ -1,9 +1,9 @@
 package main
 
 import (
-    _ "fmt"
-    "os"
-    rootCmd "webdemo/app/cmd"
+	_ "fmt"
+	"os"
+	rootCmd "webdemo/cmd"
 )
 
 func main() {

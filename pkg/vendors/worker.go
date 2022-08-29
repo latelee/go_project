@@ -3,7 +3,7 @@ package devworker
 import (
     _ "fmt"
     //"webdemo/pkg/com"
-    "k8s.io/klog"
+    "webdemo/pkg/klog"
 )
 
 type DTWorker interface {

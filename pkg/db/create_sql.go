@@ -22,8 +22,7 @@ import (
     //"encoding/binary"
 	//"io/ioutil"
 
-	"github.com/latelee/dbtool/pkg/com"
-	// conf "github.com/latelee/dbtool/common/conf"
+	"webdemo/pkg/com"
 )
 
 func CreateSqlServer(dbstr string) (sqldb *sql.DB, err error) {

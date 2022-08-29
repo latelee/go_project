@@ -33,7 +33,7 @@ package update
 import (
     _ "fmt"
     "webdemo/pkg/com"
-    "k8s.io/klog"
+    "webdemo/pkg/klog"
 
     _ "io"
     "os"

@@ -4,7 +4,7 @@ import (
 	//"strconv"
 	"webdemo/pkg/com"
 
-    "k8s.io/klog"
+    "webdemo/pkg/klog"
 
 )
 

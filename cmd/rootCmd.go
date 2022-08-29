@@ -1,39 +1,38 @@
 package cmd
 
 import (
-    "fmt"
+	"fmt"
 	"os"
 	// "io/ioutil"
 	// "bytes"
-    "path/filepath"
+	"path/filepath"
 	//"golang.org/x/net/context"
-	
-	"k8s.io/klog"
+
+	"webdemo/pkg/klog"
 
 	"github.com/spf13/cobra"
 	// "github.com/spf13/afero"
 	"github.com/spf13/viper"
-	// "github.com/fsnotify/fsnotify"    
+	// "github.com/fsnotify/fsnotify"
 	"github.com/kubeedge/beehive/pkg/core"
 
-    "webdemo/app/cmd/gin"
-    "webdemo/app/cmd/tcpp"
-	conf "webdemo/app/conf"
+	"webdemo/cmd/gin"
+	"webdemo/cmd/tcpp"
+	conf "webdemo/common/conf"
 )
-
 
 var (
 	cfgFile string
-	debug bool
-	deamon bool
-	mode string
+	debug   bool
+	deamon  bool
+	mode    string
 
-	BuildTime string
-	Version string
+	BuildTime        string
+	Version          string
 	shortDescription = `web demo`
-    longDescription = `  A web demo
+	longDescription  = `  A web demo
 `
-    example = `  comming soon...
+	example = `  comming soon...
 `
 )
 
@@ -43,9 +42,9 @@ func getVersion() string {
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
-	Use:   filepath.Base(os.Args[0]),
-	Short: shortDescription,
-	Long: getVersion() + longDescription,
+	Use:     filepath.Base(os.Args[0]),
+	Short:   shortDescription,
+	Long:    getVersion() + longDescription,
 	Example: example,
 	Version: getVersion(),
 	Run: func(cmd *cobra.Command, args []string) {
@@ -59,21 +58,21 @@ var rootCmd = &cobra.Command{
 // This is called by main.main(). It only needs to happen once to the rootCmd.
 func Execute() error {
 	// no child cmd...
-    // rootCmd.AddCommand(test.NewCmdTest())
+	// rootCmd.AddCommand(test.NewCmdTest())
 	return rootCmd.Execute()
 }
 
 // 命令行参数
-func init() {	
+func init() {
 	cobra.OnInitialize(initConfig)
 
 	rootCmd.PersistentFlags().StringVarP(&cfgFile, "config", "c", "./config.yaml", "specify the config file name")
 	rootCmd.PersistentFlags().StringVarP(&mode, "mode", "m", " ", "run mode: upgrade|normaltest")
 	rootCmd.PersistentFlags().BoolVar(&debug, "debug", false, "debug mode")
-    rootCmd.PersistentFlags().BoolVarP(&deamon, "daemon", "d", false, "deamon mode")
-    
+	rootCmd.PersistentFlags().BoolVarP(&deamon, "daemon", "d", false, "deamon mode")
+
 	// cmd.PersistentFlags().IntVarP(&port, "port", "p", 89, "port number")
-    // cmd.PersistentFlags().DurationVarP(&timeout, "timeout", "t", 10*time.Second, "http request timeout")
+	// cmd.PersistentFlags().DurationVarP(&timeout, "timeout", "t", 10*time.Second, "http request timeout")
 }
 
 // yaml 配置文件
@@ -89,8 +88,8 @@ func initConfig() {
 
 	viper.AutomaticEnv() // read in environment variables that match
 
-	err := viper.ReadInConfig();
-	if  err != nil {
+	err := viper.ReadInConfig()
+	if err != nil {
 		klog.Println("'config.yaml' file read error:", err)
 
 		os.Exit(0)
@@ -102,7 +101,7 @@ func initConfig() {
 
 		conf.TcpServer.Enable = viper.GetBool("modules.tcpserver.enable")
 		conf.TcpServer.Port = viper.GetInt("modules.tcpserver.port")
-		
+
 		conf.Vendors = viper.GetStringSlice("vendors")
 
 		klog.Println(conf.Gin.Enable, conf.Gin.Port)
@@ -123,6 +122,6 @@ func initConfig() {
 
 // 注册模块
 func registerModules() {
-    gin.Register()
-    tcpp.Register()
+	gin.Register()
+	tcpp.Register()
 }

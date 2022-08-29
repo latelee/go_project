@@ -19,7 +19,7 @@ import (
     "errors"
     "sync"
 
-    "k8s.io/klog"
+    "webdemo/pkg/klog"
 
     "github.com/gin-gonic/gin"
     "github.com/gorilla/websocket"

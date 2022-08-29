@@ -10,7 +10,7 @@ import (
     "strconv"
     //"time"
 
-    //"k8s.io/klog"
+    //"webdemo/pkg/klog"
 
     "github.com/gin-gonic/gin"
 )
