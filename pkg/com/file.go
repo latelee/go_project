@@ -15,13 +15,13 @@
 package com
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
 	"math"
 	"os"
 	"path"
-    "errors"
 )
 
 // Storage unit constants.
@@ -79,7 +79,7 @@ func FileSize1(file string) (int64, error) {
 }
 
 // 文件不存在，返回-1
-func FileSize(file string) (int64) {
+func FileSize(file string) int64 {
 	f, err := os.Stat(file)
 	if err != nil {
 		return -1
@@ -126,13 +126,13 @@ func CopyFile(dest, src string) error {
 	if err = os.Chtimes(dest, si.ModTime(), si.ModTime()); err != nil {
 		return err
 	}
-    
-    m1 := Md5ForFile(src)
-    m2 := Md5ForFile(dest)
-    if m1 != m2 {
-        info := fmt.Sprintf("src file md5 [%v] diffs dest file md5 [%v]", m1, m2)
-        return errors.New(info)
-    }
+
+	m1 := Md5ForFile(src)
+	m2 := Md5ForFile(dest)
+	if m1 != m2 {
+		info := fmt.Sprintf("src file md5 [%v] diffs dest file md5 [%v]", m1, m2)
+		return errors.New(info)
+	}
 	return os.Chmod(dest, si.Mode())
 }
 
@@ -142,6 +142,16 @@ func CopyFile(dest, src string) error {
 func WriteFile(filename string, data []byte) error {
 	os.MkdirAll(path.Dir(filename), os.ModePerm)
 	return ioutil.WriteFile(filename, data, 0655)
+}
+
+func WriteFileX(filename string, data []byte) error {
+	os.MkdirAll(path.Dir(filename), os.ModePerm)
+	return ioutil.WriteFile(filename, data, 0755)
+}
+
+func ReadFile(filename string) ([]byte, error) {
+
+	return ioutil.ReadFile(filename)
 }
 
 // IsFile returns true if given path is a file,

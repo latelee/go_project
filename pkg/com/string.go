@@ -36,7 +36,6 @@ func IsLetter(l uint8) bool {
 
 // TODO：判断其它如数字、大写、小写等
 
-
 // Expand replaces {k} in template with match[k] or subs[atoi(k)] if k is not in match.
 func Expand(template string, match map[string]string, subs ...string) string {
 	var p []byte
@@ -201,4 +200,27 @@ func ToSnakeCase(str string) string {
 	}
 
 	return buf.String()
+}
+
+func Split(s string, sep string) []string {
+	return strings.Split(s, sep)
+}
+
+func SplitTrim(s string, sep string) []string {
+	items := strings.Split(s, sep)
+	for i := 0; i < len(items); i++ {
+		items[i] = strings.Replace(items[i], " ", "", -1)
+	}
+
+	return items
+}
+
+func TrimSep(s string, cuts string) string {
+	outs := s
+	tmp := ""
+	for _, item := range cuts {
+		tmp = string(item)
+		outs = strings.Replace(outs, tmp, "", -1)
+	}
+	return outs
 }

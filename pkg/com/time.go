@@ -21,6 +21,17 @@ import (
 	"time"
 )
 
+type DateTimeS struct {
+	Year   int
+	Month  int
+	Day    int
+	Hour   int
+	Minute int
+	Second int
+
+	Tick uint64
+}
+
 // Format unix time int64 to string
 func Date(ti int64, format string) string {
 	t := time.Unix(int64(ti), 0)
@@ -48,7 +59,7 @@ func DateS(ts string, format string) string {
 // m - minute - 4
 // ss - second - 05
 // s - second = 5
-// TODO ms
+// sss - ms
 func DateT(t time.Time, format string) string {
 	res := strings.Replace(format, "MM", t.Format("01"), -1)
 	res = strings.Replace(res, "M", t.Format("1"), -1)
@@ -62,8 +73,10 @@ func DateT(t time.Time, format string) string {
 	res = strings.Replace(res, "h", t.Format("3"), -1)
 	res = strings.Replace(res, "mm", t.Format("04"), -1)
 	res = strings.Replace(res, "m", t.Format("4"), -1)
+	res = strings.Replace(res, "sss", fmt.Sprintf("%03d", t.Nanosecond()/1000000), -1)
 	res = strings.Replace(res, "ss", t.Format("05"), -1)
 	res = strings.Replace(res, "s", t.Format("5"), -1)
+
 	return res
 }
 
@@ -115,6 +128,71 @@ func DateParse(dateString, format string) (time.Time, error) {
 	return time.ParseInLocation(format, dateString, time.Local)
 }
 
-func Sleep(ms time.Duration) {
-	time.Sleep(ms*time.Millisecond);
+// 字符串形式的时间转成时间戳
+func DateStr2Stamp(dateString, format string) int64 {
+	replacer := strings.NewReplacer(datePatterns...)
+	format = replacer.Replace(format)
+	time, _ := time.ParseInLocation(format, dateString, time.Local)
+	return time.Unix()
+}
+
+func DateTime2Stamp(time time.Time) int64 {
+	return time.Unix()
+}
+
+func ParseDuration(now time.Time, s, fmt string) string {
+	t, _ := time.ParseDuration(s)
+	newTime := now.Add(t)
+	return DateT(newTime, fmt)
+}
+
+func GetNowDateTime(fmt string) string {
+	return DateT(time.Now(), fmt)
+}
+
+func Sleep(ms int) {
+	time.Sleep(time.Duration(ms) * time.Millisecond)
+}
+
+// func Sleep(ms time.Duration) {
+// 	time.Sleep(ms * time.Millisecond)
+// }
+
+// 返回系统时间类型
+func ParseDate3(date []byte) (time.Time, int) {
+	if len(date) != 19 {
+		return time.Time{}, 0
+	} else {
+		year := (((int(date[0])-'0')*10+int(date[1])-'0')*10+int(date[2])-'0')*10 + int(date[3]) - '0'
+		month := time.Month((int(date[5])-'0')*10 + int(date[6]) - '0')
+		day := (int(date[8])-'0')*10 + int(date[9]) - '0'
+		hour := (int(date[11])-'0')*10 + int(date[12]) - '0'
+		minute := (int(date[14])-'0')*10 + int(date[15]) - '0'
+		second := (int(date[17])-'0')*10 + int(date[18]) - '0'
+
+		t := time.Date(year, month, day, hour, minute, second, 0, time.Local)
+		// fmt.Println("time: ", t.Unix())
+
+		return t, 0
+	}
+}
+
+// 返回时间结构体
+func ParseDate4(date string) (s DateTimeS, ret int) {
+	ret = 0
+	if len(date) != 19 {
+		ret = -1
+	} else {
+		s.Year = (((int(date[0])-'0')*10+int(date[1])-'0')*10+int(date[2])-'0')*10 + int(date[3]) - '0'
+		s.Month = (int(date[5])-'0')*10 + int(date[6]) - '0'
+		s.Day = (int(date[8])-'0')*10 + int(date[9]) - '0'
+		s.Hour = (int(date[11])-'0')*10 + int(date[12]) - '0'
+		s.Minute = (int(date[14])-'0')*10 + int(date[15]) - '0'
+		s.Second = (int(date[17])-'0')*10 + int(date[18]) - '0'
+
+		// t := time.Date(s.Year, time.Month(s.Month), s.Day, s.Hour, s.Minute, s.Second, 0, time.Local)
+		// s.Tick = uint64(t.Unix())
+
+	}
+	return
 }

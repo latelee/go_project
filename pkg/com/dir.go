@@ -132,6 +132,13 @@ func GetAllSubDirs(rootPath string) ([]string, error) {
 	return statDir(rootPath, "", true, true, false)
 }
 
+func GetAllFiles(rootPath string) ([]string, error) {
+	if !IsDir(rootPath) {
+		return nil, errors.New("not a directory or does not exist: " + rootPath)
+	}
+	return statDir(rootPath, "", true, false, false)
+}
+
 // LgetAllSubDirs returns all subdirectories of given root path, including
 // following symbolic links, if any.
 // Slice does not include given path itself.
@@ -226,6 +233,96 @@ func RmDir(destPath string) error {
 	return os.RemoveAll(destPath)
 }
 
-func GetDirFile(path string) (dir, file string) {
-	return filepath.Split(path)
+func GetCurrentDirectory() string {
+	dir, err := filepath.Abs(filepath.Dir(os.Args[0])) //返回绝对路径  filepath.Dir(os.Args[0])去除最后一个元素的路径
+	if err != nil {
+		return ""
+	}
+	return strings.Replace(dir, "\\", "/", -1) //将\替换成/
+}
+
+// 获取当前执行程序所在的目录名称（如在/home/latelee/foo，返回foo）
+func GetRunningDirectory() string {
+	exePath, err := os.Executable()
+	if err != nil {
+		return ""
+	}
+
+	ret, _ := filepath.EvalSymlinks(filepath.Dir(exePath))
+	ret = filepath.Base(ret) // 相对目录
+	return ret
+}
+
+// 获取文件名称，返回完整文件名、去后缀的部分、后缀(后缀有点号)
+// /foo/bar/hello.go 返回：hello.go hello .go
+func GetPathFile(dir string) (file, basefile, ext string) {
+	file = filepath.Base(dir)
+	ext = filepath.Ext(dir)
+	basefile = strings.TrimSuffix(file, ext)
+	return
+}
+
+///////////////////////////////
+/*
+fileType 0 只有文件
+		 1 只有目录
+		 2 所有
+isInclude 递归
+*/
+func getAllFiles(dirPath string, fileType int, isInclude bool) (files []string, err error) {
+	// fis, err := ioutil.ReadDir(filepath.Clean(filepath.ToSlash(rootPath)))
+	// if err != nil {
+	// 	return nil, err
+	// }
+	dir, err := os.Open(dirPath)
+	if err != nil {
+		return nil, err
+	}
+	defer dir.Close()
+
+	fis, err := dir.Readdir(0)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, f := range fis {
+		_path := filepath.Join(dirPath, f.Name())
+
+		if f.IsDir() {
+			if isInclude {
+				fs, _ := getAllFiles(_path, fileType, isInclude)
+				files = append(files, fs...)
+			}
+			if fileType == 1 || fileType == 2 {
+				files = append(files, _path)
+			}
+			continue
+		}
+		if fileType == 0 || fileType == 2 {
+			files = append(files, _path)
+		}
+	}
+
+	return files, nil
+}
+
+func GetAllDirsOneDir(rootPath string) ([]string, error) {
+	if !IsDir(rootPath) {
+		return nil, errors.New("not a directory or does not exist: " + rootPath)
+	}
+	return getAllFiles(rootPath, 1, false)
+}
+
+func GetAllFilesOneDir(rootPath string) ([]string, error) {
+	if !IsDir(rootPath) {
+		return nil, errors.New("not a directory or does not exist: " + rootPath)
+	}
+	return getAllFiles(rootPath, 0, false)
+}
+
+func GetAllInDir(rootPath string, include bool) ([]string, error) {
+	if !IsDir(rootPath) {
+		return nil, errors.New("not a directory or does not exist: " + rootPath)
+	}
+	return getAllFiles(rootPath, 2, include)
 }

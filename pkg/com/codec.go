@@ -15,16 +15,17 @@
 package com
 
 import (
-	"os"
 	"bufio"
-	"encoding/base64"
-	"encoding/hex"
-	"io"
 	"crypto/aes"
 	"crypto/cipher"
-	"crypto/rand"
 	"crypto/md5"
+	"crypto/rand"
+	"encoding/base64"
+	"encoding/hex"
 	"errors"
+	"hash/crc32"
+	"io"
+	"os"
 )
 
 // base64 encode
@@ -37,7 +38,6 @@ func Base64Decode(str string) (string, error) {
 	s, e := base64.StdEncoding.DecodeString(str)
 	return string(s), e
 }
-
 
 // AESGCMEncrypt encrypts plaintext with the given key using AES in GCM mode.
 func AESGCMEncrypt(key, plaintext []byte) ([]byte, error) {
@@ -108,4 +108,7 @@ func Md5ForFile(filename string) string {
 	h := md5.New()
 	io.Copy(h, freader)
 	return hex.EncodeToString(h.Sum(nil))
+}
+func Crc32(str string) uint32 {
+	return crc32.ChecksumIEEE([]byte(str))
 }
