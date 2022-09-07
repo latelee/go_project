@@ -52,8 +52,10 @@ var rootCmd = &cobra.Command{
 	Version: getVersion(),
 	Run: func(cmd *cobra.Command, args []string) {
 		conf.RunningOS = runtime.GOOS
+		conf.RunningARCH = runtime.GOARCH
+
 		conf.Args = args
-		fmt.Printf("server start running on Platform: %v %v\n", conf.RunningOS, getVersion())
+		fmt.Printf("server start running on Platform: %v %v %v\n", conf.RunningOS, conf.RunningARCH, getVersion())
 		registerModules()
 		core.Run()
 	},

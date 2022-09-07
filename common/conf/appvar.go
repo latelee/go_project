@@ -22,6 +22,7 @@ var ConfDBServer string
 
 // 配置参数
 var RunningOS string
+var RunningARCH string
 var RunMode string
 var Args []string
 
@@ -36,34 +37,35 @@ var AppVersion string
 var HttpsEnable bool
 var HttpsCertFile string
 var HttpsKeyFile string
+
 //////////////////////////////////////////
 
 type Gin_t struct {
-    Enable bool `json:"enable,omitempty"`
-    Port   int `json:"port,omitempty"`
+	Enable bool `json:"enable,omitempty"`
+	Port   int  `json:"port,omitempty"`
 }
 
 var Gin Gin_t
 
 type UpdServer struct {
-    Enable bool `json:"enable,omitempty"`
-    Port   int `json:"port,omitempty"`
+	Enable bool `json:"enable,omitempty"`
+	Port   int  `json:"port,omitempty"`
 }
 
 type TcpServer_t struct {
-    Enable bool `json:"enable,omitempty"`
-    Port   int `json:"port,omitempty"`
+	Enable bool `json:"enable,omitempty"`
+	Port   int  `json:"port,omitempty"`
 }
 
 var TcpServer TcpServer_t
 
-
 type DevServer struct {
-    Enable   bool `json:"enable,omitempty"`
-    Name     string `json:"name,omitempty"`
-    Protocol string `json:"protocol,omitempty"`
-	Port     int `json:"port,omitempty"`
+	Enable   bool   `json:"enable,omitempty"`
+	Name     string `json:"name,omitempty"`
+	Protocol string `json:"protocol,omitempty"`
+	Port     int    `json:"port,omitempty"`
 }
+
 ///////////
 
 // 封装一层，实际数据在Data中，通过Op区分
