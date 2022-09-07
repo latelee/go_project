@@ -1,0 +1,94 @@
+<!-- html模板文件 -->
+
+{{ define "t_header.html" }}
+
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="favicon.ico">
+
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/font-awesome.min.css" rel="stylesheet">
+    <link href="css/my.css" rel="stylesheet">
+    <script src="js/jquery-3.1.1.min.js"></script>
+    <script src="js/bootstrap3-typeahead.min.js"></script>
+    <!-- <script src="js/typeahead.bundle.min.js"></script>
+    <script src="js/typeahead.jquery.min.js"></script> -->
+    <script src="js/bootstrap.min.js"></script>
+    
+
+    <script src="js/my.js"></script>
+
+    <title>测试 网页版 </title>
+  </head>
+
+{{ end }}
+
+
+{{ define "t_footer.html"}}
+
+    <!-- 底部信息 -->
+    <footer class='container-fluid foot-wrap'>
+      <div class='container'>
+        <center>
+            Powered by Late Lee <span>&copy;</span> <span>
+            2021 - <script>document.write(new Date().getFullYear());</script></span>
+        </center>
+      </div>
+    </footer>
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <!-- jQuery (Bootstrap 的所有 JavaScript 插件都依赖 jQuery，所以必须放在前边) -->
+    <script src="js/jquery-3.1.1.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+
+</body>
+</html>
+
+{{ end }}
+
+{{ define "t_nav.html" }}
+
+<body>
+<nav class="navbar navbar-default ">
+	<div class="container container-fluid">
+		<div class="navbar-header">
+			<button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
+			data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+				<span class="sr-only"> Toggle navigation </span>
+				<span class="icon-bar"> </span>
+				<span class="icon-bar"> </span>
+				<span class="icon-bar"> </span>
+			</button>
+		</div>
+		<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+			<ul class="nav navbar-nav">
+                <li> <a class="{{ if eq . "page1" }} navbar-brand {{ end }}" href="/"> 页面1 </a> </li>
+                <li> <a class="{{ if eq . "page2" }} navbar-brand {{ end }}" href="/page2"> 页面2 </a> </li>
+
+				{{ if eq . "high" }}
+				 <li> <a class="navbar-brand"  href="/testing"> 测试 </a> </li>
+				 <li> <a class="navbar-brand"  href="/website" target="_blank"> 内部网站 </a> </li>
+				{{ end }}
+			</ul>
+			<ul class="nav navbar-nav navbar-right">
+				{{ if eq . "high" }}
+				 <li> <a class="navbar-brand"  href="/setting"> 设置 </a> </li>
+				{{ end }}
+				<li> <a class="{{ if eq . "help" }} navbar-brand {{ end }}" href="/help"> 帮助 </a> </li>
+				<li> <a class="{{ if eq . "about" }} navbar-brand {{ end }}" href="/about"> 关于 </a> </li>
+			</ul>
+		</div>
+	</div>
+</nav>
+
+{{ end }}

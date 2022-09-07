@@ -1,6 +1,0 @@
-环境：
-安装golang （当前使用1.13版本测试）
-
-编译：
-cd app
-./mybuild.sh

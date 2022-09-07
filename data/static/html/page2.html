@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+{{ template "t_header.html" .}}
+{{ template "t_nav.html" "high"}}
+
+<div class="container">
+    <div class="row">
+    </div> <!-- class row -->
+    <div class="col-md-3">
+
+<form id="form1" onsubmit="return false" action="##" method="post">
+    
+
+    <div id="resetInfo1" class="bs-example">
+    <input id="bt" type="button" class="btn btn-info" onClick="testing()" value="测试"/>
+    </div>
+    
+</form>
+
+
+    </div> <!-- end of col-md-3 -->
+
+    <!-- <div class="col-md-1"> </div> -->
+
+    <div class="col-md-9">
+        <p>
+        <p id="output"><p><br>
+    </div> <!-- class col-md- -->
+</div> <!-- class = container -->
+
+<script type="text/javascript">
+    function testing() {
+        //console.log("param11: ", $('#form1').serialize())
+        datas = $('#form1').serialize()
+        datas = decodeURIComponent(datas,true);
+        // console.log("datas: ", datas)
+        $("#output").text("处理中");
+        $.ajax({
+            type: "POST",
+            dataType: "text",
+            url: "/testing" ,
+            data: datas, //$('#form1').serialize(),
+            success: function (result) {
+                $("#output").html(result);
+            },
+            error : function() {
+                $("#output").text("返回失败");
+            }
+        });
+    }
+
+</script>
+
+{{ template "t_footer.html" .}}

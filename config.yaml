@@ -1,4 +1,4 @@
-
+## 本文件含中文，使用UTF8编码保存
 
 dbserver:
   datasource: /var/lib/my.db3
@@ -15,3 +15,11 @@ vendors:
   - foo
   - bar
   - hello
+
+setting:
+  data_file: data # 数据文件所在目录
+
+https:
+  enable: false
+  cert_file: "latelee.crt"
+  key_file: "latelee.key"

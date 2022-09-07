@@ -4,14 +4,16 @@ import (
 	_ "fmt"
 	"strconv"
 
-	//    "webdemo/pkg/com"
+	"webdemo/pkg/com"
+	"webdemo/pkg/klog"
+
 	"github.com/kubeedge/beehive/pkg/core"
 	beehiveContext "github.com/kubeedge/beehive/pkg/core/context"
-	"webdemo/pkg/klog"
 
 	//"net/http"
 	"github.com/gin-gonic/gin"
 
+	cli "webdemo/cmd/gin/post_client"
 	"webdemo/common/conf"
 )
 
@@ -43,32 +45,23 @@ func (a *ginServer) Enable() bool {
 }
 
 func (a *ginServer) Start() {
-	klog.Infoln("ginServer...")
-	//go a.doit()
 
-	router := gin.Default()
-	//router.POST("/test", HelloWordPost)
-	//router.GET("/test", HelloWordGet)
+	// 业务初始化
+	router := initBusy()
 
-	// 组
-	v1 := router.Group("/device/v1/devlist")
-	{
-		v1.GET("/", GetAllDevices)
-		v1.GET("/:id", GetSingleDevice)
+	if router == nil {
+		return
 	}
+	// 运行服务，支持2种方式
+	if conf.HttpsEnable {
+		if com.IsExist(conf.HttpsCertFile) && com.IsExist(conf.HttpsKeyFile) {
+			router.RunTLS(":"+strconv.Itoa(conf.Gin.Port), conf.HttpsCertFile, conf.HttpsKeyFile)
+			return
+		}
 
-	router.POST("/device/v1/get", DeviceGetHandle)
-	router.POST("/device/v1/set", DeviceSetHandle)
-
-	/*
-	   // 组
-	   v2 := router.Group("/device/ws")
-	   {
-	       v2.GET("/:id", WSHandler)
-	   }
-	*/
-
+	}
 	router.Run(":" + strconv.Itoa(conf.Gin.Port))
+
 }
 
 func (a *ginServer) Cleanup() {
@@ -89,4 +82,20 @@ func (a *ginServer) doit() {
 		//klog.Infoln(".")
 		//com.Sleep(10000)
 	}
+}
+
+func initBusy() *gin.Engine {
+
+	if conf.RunMode == "website" { // 可作为普通的web网站服务器使用
+		klog.Println("Running for static web site...")
+		return runWebSimple()
+	} else if conf.RunMode == "client" { // 可作为普通的web网站服务器使用
+		klog.Println("Running for post client...")
+		return cli.Client()
+	} else { // add more...
+		klog.Println("Running for post test...")
+		return runAll()
+	}
+
+	// return nil
 }

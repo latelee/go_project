@@ -3,11 +3,14 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"runtime"
+
 	// "io/ioutil"
 	// "bytes"
 	"path/filepath"
 	//"golang.org/x/net/context"
 
+	"webdemo/pkg/com"
 	"webdemo/pkg/klog"
 
 	"github.com/spf13/cobra"
@@ -37,7 +40,7 @@ var (
 )
 
 func getVersion() string {
-	return fmt.Sprintf("  version: %v build: %v\n", Version, BuildTime)
+	return fmt.Sprintf("web  version: %v build: %v\n", Version, BuildTime)
 }
 
 // rootCmd represents the base command when called without any subcommands
@@ -48,7 +51,9 @@ var rootCmd = &cobra.Command{
 	Example: example,
 	Version: getVersion(),
 	Run: func(cmd *cobra.Command, args []string) {
-		klog.Println("server run...")
+		conf.RunningOS = runtime.GOOS
+		conf.Args = args
+		fmt.Printf("server start running on Platform: %v %v\n", conf.RunningOS, getVersion())
 		registerModules()
 		core.Run()
 	},
@@ -64,6 +69,7 @@ func Execute() error {
 
 // 命令行参数
 func init() {
+	// TOCHECK 配置文件和命令行指定，谁优先级高？似乎是配置文件
 	cobra.OnInitialize(initConfig)
 
 	rootCmd.PersistentFlags().StringVarP(&cfgFile, "config", "c", "./config.yaml", "specify the config file name")
@@ -71,52 +77,70 @@ func init() {
 	rootCmd.PersistentFlags().BoolVar(&debug, "debug", false, "debug mode")
 	rootCmd.PersistentFlags().BoolVarP(&deamon, "daemon", "d", false, "deamon mode")
 
-	// cmd.PersistentFlags().IntVarP(&port, "port", "p", 89, "port number")
+	rootCmd.PersistentFlags().IntVarP(&conf.Gin.Port, "port", "p", 9000, "port number")
 	// cmd.PersistentFlags().DurationVarP(&timeout, "timeout", "t", 10*time.Second, "http request timeout")
 }
 
 // yaml 配置文件
 func initConfig() {
+	conf.Config = viper.New()
 	if cfgFile != "" {
 		// Use config file from the flag.
-		viper.SetConfigFile(cfgFile)
+		conf.Config.SetConfigFile(cfgFile)
 	} else {
-		viper.AddConfigPath("./")
-		viper.SetConfigName("config")
-		viper.SetConfigType("yaml")
+		conf.Config.AddConfigPath("./")
+		conf.Config.SetConfigName("config")
+		conf.Config.SetConfigType("yaml")
 	}
 
-	viper.AutomaticEnv() // read in environment variables that match
+	conf.Config.AutomaticEnv() // read in environment variables that match
 
-	err := viper.ReadInConfig()
+	err := conf.Config.ReadInConfig()
 	if err != nil {
 		klog.Println("'config.yaml' file read error:", err)
 
 		os.Exit(0)
 	} else {
-		conf.ConfDBServer = viper.GetString("dbserver.datasource")
+		conf.ConfDBServer = conf.Config.GetString("dbserver.datasource")
 
-		conf.Gin.Enable = viper.GetBool("modules.gin.enable")
-		conf.Gin.Port = viper.GetInt("modules.gin.port")
+		conf.Gin.Enable = conf.Config.GetBool("modules.gin.enable")
+		conf.Gin.Port = conf.Config.GetInt("modules.gin.port")
 
-		conf.TcpServer.Enable = viper.GetBool("modules.tcpserver.enable")
-		conf.TcpServer.Port = viper.GetInt("modules.tcpserver.port")
+		conf.TcpServer.Enable = conf.Config.GetBool("modules.tcpserver.enable")
+		conf.TcpServer.Port = conf.Config.GetInt("modules.tcpserver.port")
 
-		conf.Vendors = viper.GetStringSlice("vendors")
+		conf.Vendors = conf.Config.GetStringSlice("vendors")
 
-		klog.Println(conf.Gin.Enable, conf.Gin.Port)
-		klog.Println(conf.Vendors)
+		conf.AppVersion = getVersion()
+		tmpstr := conf.Config.GetString("setting.data_file")
+		if len(tmpstr) != 0 {
+			conf.DataFileDir = tmpstr
+		}
+
+		//  https
+		conf.HttpsEnable = conf.Config.GetBool("https.enable")
+		conf.HttpsCertFile = conf.Config.GetString("https.cert_file")
+		conf.HttpsKeyFile = conf.Config.GetString("https.key_file")
+
+		// klog.Println(conf.Gin.Enable, conf.Gin.Port)
+		// klog.Println(conf.Vendors)
 	}
 
+	viper.BindPFlags(rootCmd.PersistentFlags())
+
+	curDir := com.GetRunningDirectory()
+
+	klog.Println("test config flag:", curDir, conf.Gin.Enable, conf.Gin.Port)
+
 	// //设置监听回调函数 似乎调用了2次
-	// viper.OnConfigChange(func(e fsnotify.Event) {
+	// conf.Config.OnConfigChange(func(e fsnotify.Event) {
 	// 	//klog.Printf("config is change :%s \n", e.String())
-	// 	fullstate := viper.GetString("dbserver.timeout.fullstate")
+	// 	fullstate := conf.Config.GetString("dbserver.timeout.fullstate")
 	// 	klog.Println("fullstate--: ", fullstate)
 	// 	//cancel()
 	// })
 
-	// viper.WatchConfig()
+	// conf.Config.WatchConfig()
 
 }
 
