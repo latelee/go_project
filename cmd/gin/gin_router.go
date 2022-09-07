@@ -1,5 +1,5 @@
 /*
-页面设置、公共配置之类
+和路由相关，如页面和post请求入口，具体的散见其它文件。
 */
 
 package gin
@@ -20,11 +20,16 @@ func routerPage(r *gin.Engine) {
 func routerPost(r *gin.Engine) {
 	routerPostOld(r)
 
+	//
+	r.POST("/api/user/login", HandleLogin)
+	r.POST("/api/user/logout", HandleLogout)
+
 	r.POST("/testing", HandleTest)
 	r.POST("/postfile", HandlePostFile)
 
 }
 
+// 旧的
 func routerPostOld(r *gin.Engine) {
 	//r.POST("/test", HelloWordPost)
 	//r.GET("/test", HelloWordGet)
@@ -47,7 +52,6 @@ func routerPostOld(r *gin.Engine) {
 	   }
 	*/
 }
-
 
 /////////////////////////////////////////////////
 

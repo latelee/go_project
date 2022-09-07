@@ -3,7 +3,6 @@ package gin
 import (
 	"encoding/json"
 	"fmt"
-	"net/http"
 	"strings"
 	"webdemo/common/conf"
 
@@ -13,8 +12,7 @@ import (
 //////////////////////////////////////////
 /*
 一般性的post请求处理
-
-curl http://127.0.0.1:9000/testing -X POST -H "Content-Type:application/json" -d  '{"id":"test_001", "op":"etc", "timestamp":12342134341234, "data":{"name":"foo", "addr":"bar", "code":450481, "age":100}}'
+curl http://127.0.0.1:9000/testing -X POST -H "Content-Type:application/json" -d  '{"id":"test_001", "op":"etc", "timestamp":12342134341234, "data":{"name":"foo", "addr":"bar", "res_code":450481, "age":100}}'
 
 // 发送空 或单纯字符
 curl http://127.0.0.1:9000/testing -X POST -d "abc"
@@ -27,8 +25,12 @@ func HandleTest(ctx *gin.Context) {
 	var ss conf.MyInfo_t
 	var err error
 
-	var resdata gin.H
+	var res_code int
+	var res_msg string
+	// var res_data map[string]interface{}
+	res_data := make(map[string]interface{})
 
+	var tmpDataJson []byte
 	// fmt.Println("Content-Type: ", ctx.Request.Header.Get("Content-Type"))
 
 	contentType := ctx.Request.Header.Get("Content-Type")
@@ -38,11 +40,17 @@ func HandleTest(ctx *gin.Context) {
 		//file, err := ctx.FormFile("file")
 		file, header, err := ctx.Request.FormFile("file")
 		if err != nil {
-			ctx.JSON(http.StatusBadRequest, gin.H{
-				"code": "-1",
-				"msg":  err.Error(),
-				"data": gin.H{}})
-			return
+			// 使用封装的函数返回
+			res_code = -1
+			res_msg = err.Error()
+			// 可直接用ctx.JSON组装并返回，下同
+			// ctx.JSON(http.StatusBadRequest, gin.H{
+			// 	"res_code": "-1",
+			// 	"res_msg":  err.Error(),
+			// 	"data": gin.H{}})
+			// return
+
+			goto end
 		}
 
 		//fmt.Printf("Request: %+v\n", ctx.Request);
@@ -54,11 +62,9 @@ func HandleTest(ctx *gin.Context) {
 		fmt.Printf("filename: %s size: %d\n", jsonfilename, mysize)
 
 		if err != nil {
-			ctx.JSON(http.StatusBadRequest, gin.H{
-				"code": "-1",
-				"msg":  err.Error(),
-				"data": gin.H{}})
-			return
+			res_code = -1
+			res_msg = err.Error()
+			goto end
 		}
 
 		// 处理json文件
@@ -70,53 +76,43 @@ func HandleTest(ctx *gin.Context) {
 		// tmpDataJson, _ := json.Marshal(jsonbuf)
 		err = json.Unmarshal(jsonbuf, &s)
 		if err != nil {
-			resdata = gin.H{
-				"code": "0",
-				"msg":  "parse json failed " + err.Error(),
-				"data": gin.H{},
-			}
+			res_code = -1
+			res_msg = "parse json failed " + err.Error()
 		} else {
-			resdata = gin.H{
-				"code": "0",
-				"msg":  "ok got multipart json",
-				"data": gin.H{},
-			}
+			res_code = 0
+			res_msg = "ok got multipart json"
 		}
 
 	} else if strings.Contains(contentType, "application/json") { // 纯json
 		fmt.Println("got json request")
 		if err = ctx.ShouldBindJSON(&s); err != nil {
-			fmt.Printf("bind json failed: %v\n", err)
-			return
+			fmt.Printf("ShouldBindJSON failed: %v\n", err)
+			res_code = -1
+			res_msg = "ShouldBindJSON failed " + err.Error()
 		}
 
-		// 组装返回json
-		resdata = gin.H{
-			"code": "0",
-			"msg":  "ok got only json",
-			"data": gin.H{},
-		}
+		res_code = 0
+		res_msg = "ok got only json"
 	} else { // 其它
 		param, _ := ctx.GetRawData()
 		fmt.Println("rawdata: ", param)
-		// 组装返回json
-		resdata = gin.H{
-			"code": "-1",
-			"msg":  "only support json",
-			"data": gin.H{
-				"yourcontext": string(param),
-			},
-		}
+
+		res_code = -1
+		res_msg = "only support json"
+		res_data["yourcontext"] = string(param)
+		goto end
 	}
 
 	// 再解析Data字段
-	tmpDataJson, _ := json.Marshal(s.Data)
+	tmpDataJson, _ = json.Marshal(s.Data)
 	json.Unmarshal(tmpDataJson, &ss)
 
 	fmt.Printf("got json: [%#v]\n", s)
 	fmt.Printf("got json data: [%#v]\n", ss)
 
-	ctx.JSON(http.StatusOK, resdata)
+end:
+	response(res_code, res_msg, res_data, ctx)
+	// ctx.JSON(http.StatusOK, resdata)
 }
 
 /*
