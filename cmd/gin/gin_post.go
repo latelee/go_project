@@ -27,7 +27,6 @@ func HandleTest(ctx *gin.Context) {
 
 	var res_code int
 	var res_msg string
-	// var res_data map[string]interface{}
 	res_data := make(map[string]interface{})
 
 	var tmpDataJson []byte
@@ -36,6 +35,7 @@ func HandleTest(ctx *gin.Context) {
 	contentType := ctx.Request.Header.Get("Content-Type")
 	// 判断参数
 	if strings.Contains(contentType, "multipart/form-data") { // 文件形式
+		fmt.Println("got file json request")
 		// 2种方式都可，但 ctx.Request.FormFile 可以得到文件句柄，可直接拷贝 指定的关键字为 file
 		//file, err := ctx.FormFile("file")
 		file, header, err := ctx.Request.FormFile("file")
@@ -78,10 +78,22 @@ func HandleTest(ctx *gin.Context) {
 		if err != nil {
 			res_code = -1
 			res_msg = "parse json failed " + err.Error()
-		} else {
-			res_code = 0
-			res_msg = "ok got multipart json"
+			goto end
 		}
+
+		res_code = 0
+		res_msg = "ok got multipart json"
+
+		// 特殊，以文件形式请求，返回文件形式
+		back_file := fmt.Sprintf("res_%v", jsonfilename)
+		ctx.Writer.Header().Set("Content-Disposition", fmt.Sprintf("form-data; name=\"file\"; filename=\"%s\"", back_file))
+
+		// 用现成的文件
+		// ctx.File(back_file)
+		// 内部实际调用http.ServeFile
+		// http.ServeFile(ctx.Writer, ctx.Request, back_file)
+
+		//return
 
 	} else if strings.Contains(contentType, "application/json") { // 纯json
 		fmt.Println("got json request")

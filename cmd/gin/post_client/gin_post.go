@@ -131,6 +131,7 @@ func post_filedata_from_buffer(url string, caCertFile, certFile, keyFile string,
 	// 在此处关闭，可能会写完文件，不能用defer，否则文件可能没写完，会提示unexpected EOF
 	writer.Close()
 
+	fmt.Println("post file buf: ", string(buff.Bytes()))
 	// 发送一个POST请求
 	req, err := http.NewRequest("POST", url, &buff)
 	if err != nil {
@@ -240,7 +241,7 @@ func post_filedata_from_file(url string, caCertFile, certFile, keyFile string, m
 }
 
 ///////////////////////////
-
+// TODO 改成客户端，命令行带参数
 func Client() *gin.Engine {
 	fmt.Printf("post client start... %v\n", conf.Args)
 
@@ -258,15 +259,17 @@ func Client() *gin.Engine {
 
 	fmt.Println("jsonBytes: ", string(jsonBytes))
 
+	var bakfile, body string
+	var err error
 	// jsonBytes = []byte("hello") // 发原始的
 
-	_, body, err := post_from_buffer("https://127.0.0.1:9000/testing", "rootCA.crt", "latelee.crt", "latelee.key", jsonBytes)
-	fmt.Printf("body: [%v] err: [%v]\n", body, err)
+	//bakfile, body, err = post_from_buffer("https://127.0.0.1:9000/testing", "rootCA.crt", "latelee.crt", "latelee.key", jsonBytes)
 
-	_, body, err = post_from_buffer("http://127.0.0.1:9000/testing", "rootCA.crt", "latelee.crt", "latelee.key", jsonBytes)
+	// bakfile, body, err = post_from_buffer("http://127.0.0.1:9000/testing", "rootCA.crt", "latelee.crt", "latelee.key", jsonBytes)
 
-	// _, body, err := post_from_buffer("https://127.0.0.1:9000/testing", "latelee.crt", jsonBytes)
-	fmt.Printf("body: [%v] err: [%v]\n", body, err)
+	bakfile, body, err = post_filedata_from_file("http://127.0.0.1:9000/testing", "", "", "", "foo.json")
+
+	fmt.Printf("bakfile: [%v] body: [%v] err: [%v]\n", bakfile, body, err)
 
 	return nil
 }

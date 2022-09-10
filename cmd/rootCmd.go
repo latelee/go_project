@@ -75,9 +75,10 @@ func init() {
 	cobra.OnInitialize(initConfig)
 
 	rootCmd.PersistentFlags().StringVarP(&cfgFile, "config", "c", "./config.yaml", "specify the config file name")
-	rootCmd.PersistentFlags().StringVarP(&mode, "mode", "m", " ", "run mode: upgrade|normaltest")
-	rootCmd.PersistentFlags().BoolVar(&debug, "debug", false, "debug mode")
-	rootCmd.PersistentFlags().BoolVarP(&deamon, "daemon", "d", false, "deamon mode")
+	rootCmd.PersistentFlags().StringVarP(&conf.RunMode, "mode", "m", "", "mode: client|website")
+	// rootCmd.PersistentFlags().StringVarP(&mode, "mode", "m", " ", "run mode: upgrade|normaltest")
+	// rootCmd.PersistentFlags().BoolVar(&debug, "debug", false, "debug mode")
+	// rootCmd.PersistentFlags().BoolVarP(&deamon, "daemon", "d", false, "deamon mode")
 
 	rootCmd.PersistentFlags().IntVarP(&conf.Gin.Port, "port", "p", 9000, "port number")
 	// cmd.PersistentFlags().DurationVarP(&timeout, "timeout", "t", 10*time.Second, "http request timeout")
