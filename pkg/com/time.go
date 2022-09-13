@@ -59,7 +59,7 @@ func DateS(ts string, format string) string {
 // m - minute - 4
 // ss - second - 05
 // s - second = 5
-// sss - ms
+// SSS - ms
 func DateT(t time.Time, format string) string {
 	res := strings.Replace(format, "MM", t.Format("01"), -1)
 	res = strings.Replace(res, "M", t.Format("1"), -1)
@@ -73,7 +73,7 @@ func DateT(t time.Time, format string) string {
 	res = strings.Replace(res, "h", t.Format("3"), -1)
 	res = strings.Replace(res, "mm", t.Format("04"), -1)
 	res = strings.Replace(res, "m", t.Format("4"), -1)
-	res = strings.Replace(res, "sss", fmt.Sprintf("%03d", t.Nanosecond()/1000000), -1)
+	res = strings.Replace(res, "SSS", fmt.Sprintf("%03d", t.Nanosecond()/1000000), -1)
 	res = strings.Replace(res, "ss", t.Format("05"), -1)
 	res = strings.Replace(res, "s", t.Format("5"), -1)
 
