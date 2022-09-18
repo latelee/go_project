@@ -849,6 +849,13 @@ func FormatJson(jsonstr string) (ret string, err error) {
 	return
 }
 
+func FormatJsonString(jsonstr string) (ret string) {
+	var out bytes.Buffer
+	_ = json.Indent(&out, []byte(jsonstr), "", "    ")
+	ret = out.String()
+	return
+}
+
 func PackJson(jsonstr string) string {
 	jsonstr = strings.Replace(jsonstr, " ", "", -1)
 	jsonstr = strings.Replace(jsonstr, "\t", "", -1)

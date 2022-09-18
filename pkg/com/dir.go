@@ -151,7 +151,7 @@ func LgetAllSubDirs(rootPath string) ([]string, error) {
 
 // GetFileListBySuffix returns an ordered list of file paths.
 // It recognize if given path is a file, and don't do recursive find.
-func GetFileListBySuffix(dirPath, suffix string) ([]string, error) {
+func GetFileListBySuffix(dirPath, suffix string, needDir bool) ([]string, error) {
 	if !IsExist(dirPath) {
 		return nil, fmt.Errorf("given path does not exist: %s", dirPath)
 	} else if IsFile(dirPath) {
@@ -172,7 +172,44 @@ func GetFileListBySuffix(dirPath, suffix string) ([]string, error) {
 	files := make([]string, 0, len(fis))
 	for _, fi := range fis {
 		if strings.HasSuffix(fi.Name(), suffix) {
-			files = append(files, path.Join(dirPath, fi.Name()))
+			if needDir {
+				files = append(files, path.Join(dirPath, fi.Name()))
+			} else {
+				files = append(files, fi.Name())
+			}
+		}
+	}
+
+	return files, nil
+}
+
+// as GetFileListBySuffix, but for Prefix
+func GetFileListByPrefix(dirPath, suffix string, needDir bool) ([]string, error) {
+	if !IsExist(dirPath) {
+		return nil, fmt.Errorf("given path does not exist: %s", dirPath)
+	} else if IsFile(dirPath) {
+		return []string{dirPath}, nil
+	}
+
+	// Given path is a directory.
+	dir, err := os.Open(dirPath)
+	if err != nil {
+		return nil, err
+	}
+
+	fis, err := dir.Readdir(0)
+	if err != nil {
+		return nil, err
+	}
+
+	files := make([]string, 0, len(fis))
+	for _, fi := range fis {
+		if strings.HasPrefix(fi.Name(), suffix) {
+			if needDir {
+				files = append(files, path.Join(dirPath, fi.Name()))
+			} else {
+				files = append(files, fi.Name())
+			}
 		}
 	}
 

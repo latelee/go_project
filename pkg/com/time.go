@@ -128,7 +128,7 @@ func DateParse(dateString, format string) (time.Time, error) {
 	return time.ParseInLocation(format, dateString, time.Local)
 }
 
-// 字符串形式的时间转成时间戳
+// 字符串形式的时间转成时间戳 格式按 "2006-01-02 15:04:05.999999999 -0700 MST"
 func DateStr2Stamp(dateString, format string) int64 {
 	replacer := strings.NewReplacer(datePatterns...)
 	format = replacer.Replace(format)
@@ -148,6 +148,10 @@ func ParseDuration(now time.Time, s, fmt string) string {
 
 func GetNowDateTime(fmt string) string {
 	return DateT(time.Now(), fmt)
+}
+
+func GetNowTimeTick() int64 {
+	return time.Now().Unix()
 }
 
 func Sleep(ms int) {

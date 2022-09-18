@@ -189,6 +189,17 @@ func (b *BufferReader) ReadBytes(n int) (o []byte) {
 	return
 }
 
+// 按hex编码读N个字节，转成int
+func (b *BufferReader) ReadHexStringIntN(n int) (o int) {
+	buf := b.Buffer[b.offset : b.offset+n]
+	o1, _ := strconv.ParseInt(hex.EncodeToString(buf), 16, 64)
+	o = int(o1)
+
+	b.offset += n
+
+	return
+}
+
 // 转为十六进制格式的字符串
 func (b *BufferReader) ReadHexString(n int) (o string) {
 	buf := b.Buffer[b.offset : b.offset+n]
