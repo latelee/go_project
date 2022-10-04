@@ -21,7 +21,7 @@ curl http://127.0.0.1:9000/testing -X POST -d "abc"
 curl http://127.0.0.1:9000/testing -X POST -F "file=@foo.json"
 */
 func HandleTest(ctx *gin.Context) {
-	var s conf.BaseRequestqMsg
+	var s conf.BaseRequestMsg
 	var ss conf.MyInfo_t
 	var err error
 

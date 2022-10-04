@@ -245,7 +245,7 @@ func post_filedata_from_file(url string, caCertFile, certFile, keyFile string, m
 func Client() *gin.Engine {
 	fmt.Printf("post client start... %v\n", conf.Args)
 
-	var s conf.BaseRequestqMsg
+	var s conf.BaseRequestMsg
 	var ss conf.MyInfo_t
 
 	ss.Age = 250

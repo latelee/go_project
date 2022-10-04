@@ -69,7 +69,7 @@ type DevServer struct {
 ///////////
 
 // 封装一层，实际数据在Data中，通过Op区分
-type BaseRequestqMsg struct {
+type BaseRequestMsg struct {
 	Id        string      `json:"id"`
 	Op        string      `json:"op"`
 	Timestamp int64       `json:"timestamp"`

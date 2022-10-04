@@ -151,7 +151,7 @@ func LgetAllSubDirs(rootPath string) ([]string, error) {
 
 // GetFileListBySuffix returns an ordered list of file paths.
 // It recognize if given path is a file, and don't do recursive find.
-func GetFileListBySuffix(dirPath, suffix string, needDir bool) ([]string, error) {
+func GetFileListBySuffix(dirPath, suffix string, needDir bool, num int) ([]string, error) {
 	if !IsExist(dirPath) {
 		return nil, fmt.Errorf("given path does not exist: %s", dirPath)
 	} else if IsFile(dirPath) {
@@ -169,8 +169,12 @@ func GetFileListBySuffix(dirPath, suffix string, needDir bool) ([]string, error)
 		return nil, err
 	}
 
-	files := make([]string, 0, len(fis))
-	for _, fi := range fis {
+	if num == 0 {
+		num = len(fis)
+	}
+	files := make([]string, 0, num)
+	for i := 0; i < num; i++ {
+		fi := fis[i]
 		if strings.HasSuffix(fi.Name(), suffix) {
 			if needDir {
 				files = append(files, path.Join(dirPath, fi.Name()))
@@ -184,7 +188,7 @@ func GetFileListBySuffix(dirPath, suffix string, needDir bool) ([]string, error)
 }
 
 // as GetFileListBySuffix, but for Prefix
-func GetFileListByPrefix(dirPath, suffix string, needDir bool) ([]string, error) {
+func GetFileListByPrefix(dirPath, suffix string, needDir bool, num int) ([]string, error) {
 	if !IsExist(dirPath) {
 		return nil, fmt.Errorf("given path does not exist: %s", dirPath)
 	} else if IsFile(dirPath) {
@@ -202,9 +206,50 @@ func GetFileListByPrefix(dirPath, suffix string, needDir bool) ([]string, error)
 		return nil, err
 	}
 
-	files := make([]string, 0, len(fis))
-	for _, fi := range fis {
+	if num == 0 {
+		num = len(fis)
+	}
+	files := make([]string, 0, num)
+	for i := 0; i < num; i++ {
+		fi := fis[i]
 		if strings.HasPrefix(fi.Name(), suffix) {
+			if needDir {
+				files = append(files, path.Join(dirPath, fi.Name()))
+			} else {
+				files = append(files, fi.Name())
+			}
+		}
+	}
+
+	return files, nil
+}
+
+// as GetFileListBySuffix, but for Prefix
+func GetFileListByKey(dirPath, key string, needDir bool, num int) ([]string, error) {
+	if !IsExist(dirPath) {
+		return nil, fmt.Errorf("given path does not exist: %s", dirPath)
+	} else if IsFile(dirPath) {
+		return []string{dirPath}, nil
+	}
+
+	// Given path is a directory.
+	dir, err := os.Open(dirPath)
+	if err != nil {
+		return nil, err
+	}
+
+	fis, err := dir.Readdir(0)
+	if err != nil {
+		return nil, err
+	}
+
+	if num == 0 {
+		num = len(fis)
+	}
+	files := make([]string, 0, num)
+	for i := 0; i < num; i++ {
+		fi := fis[i]
+		if strings.Contains(fi.Name(), key) {
 			if needDir {
 				files = append(files, path.Join(dirPath, fi.Name()))
 			} else {
@@ -292,7 +337,8 @@ func GetRunningDirectory() string {
 
 // 获取文件名称，返回完整文件名、去后缀的部分、后缀(后缀有点号)
 // /foo/bar/hello.go 返回：hello.go hello .go
-func GetPathFile(dir string) (file, basefile, ext string) {
+func GetPathFile(dir string) (odir, file, basefile, ext string) {
+	odir = filepath.Dir(dir)
 	file = filepath.Base(dir)
 	ext = filepath.Ext(dir)
 	basefile = strings.TrimSuffix(file, ext)
@@ -362,4 +408,11 @@ func GetAllInDir(rootPath string, include bool) ([]string, error) {
 		return nil, errors.New("not a directory or does not exist: " + rootPath)
 	}
 	return getAllFiles(rootPath, 2, include)
+}
+
+func GetAllFileInDir(rootPath string) ([]string, error) {
+	if !IsDir(rootPath) {
+		return nil, errors.New("not a directory or does not exist: " + rootPath)
+	}
+	return getAllFiles(rootPath, 0, true)
 }

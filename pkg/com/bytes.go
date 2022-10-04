@@ -184,3 +184,20 @@ func GetContinuedIdx(hexByte []byte) (int, int) {
     }
     return idx1, idx2
 }
+
+func isSpace(ch rune) bool {
+	if ch == ' ' || ch == '\n' || ch == '\r' ||
+		ch == '\t' || ch == '\v' || ch == 'f' {
+		return true
+	}
+	return false
+}
+
+func HasSpace(str string) bool {
+	for _, ch := range str {
+		if isSpace(ch) {
+			return true
+		}
+	}
+	return false
+}

@@ -206,8 +206,21 @@ func Split(s string, sep string) []string {
 	return strings.Split(s, sep)
 }
 
+func SplitN(s string, sep string, n int) []string {
+	return strings.SplitN(s, sep, n)
+}
+
 func SplitTrim(s string, sep string) []string {
 	items := strings.Split(s, sep)
+	for i := 0; i < len(items); i++ {
+		items[i] = strings.Replace(items[i], " ", "", -1)
+	}
+
+	return items
+}
+
+func SplitTrimN(s string, sep string, n int) []string {
+	items := strings.SplitN(s, sep, n)
 	for i := 0; i < len(items); i++ {
 		items[i] = strings.Replace(items[i], " ", "", -1)
 	}
@@ -223,4 +236,56 @@ func TrimSep(s string, cuts string) string {
 		outs = strings.Replace(outs, tmp, "", -1)
 	}
 	return outs
+}
+
+func TrimpLast(s string) (ss string) {
+	ss = s[:len(s)-1]
+	return
+}
+
+func TrimpLastN(s string, num int) (ss string) {
+	ss = s[:len(s)-num]
+	return
+}
+
+func TrimFirst(s string) (ss string) {
+	ss = s[1:]
+	return
+}
+
+func TrimpFirstN(s string, num int) (ss string) {
+	ss = s[num:]
+	return
+}
+
+func IsEmptyString(str string) bool {
+	slen := len(str)
+
+	for i := 0; i < slen; i++ {
+		item := str[i]
+		if (item != 0x20) && (item != '\t') && (item != '\n') && (item != 0) {
+			return false
+		}
+	}
+	return true
+}
+
+func IsEmptyBytes(str []byte) bool {
+	slen := len(str)
+
+	for i := 0; i < slen; i++ {
+		item := str[i]
+		if (item != 0x20) && (item != '\t') && (item != '\n') && (item != 0) {
+			return false
+		}
+	}
+	return true
+}
+
+func String2Rune(src string) (dest []rune) {
+
+	for _, item := range src {
+		dest = append(dest, item)
+	}
+	return
 }

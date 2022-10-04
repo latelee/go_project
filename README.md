@@ -63,8 +63,10 @@ web 服务使用 gin 框架。
 ```
 
 `cmd/gin`为web服务实现的主要目录：
-router_xxx.go： 和具体的响应url路由相关的实现
+router_xxx.go： 和具体的响应url路由相关的实现  
+gin_router.go： 设置路由和url的实现  
 
+注：如按 MVC 构架，需设置不同子目录放在不同功能文件，以适合团队协作，本工程暂不如此。  
 
 ## 编译相关
 

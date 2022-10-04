@@ -541,7 +541,7 @@ func checkSkipNames(a string, b []string) bool {
 }
 
 // 结构体的字段名称
-func GetStructName(myref reflect.Value, title string, names []string) (buffer string) {
+func GetStructName(myref reflect.Value, title string, names []string, sep string) (buffer string) {
 	// 注：有可能传递string数组，此时没有“标题”一说，返回
 	if myref.Kind().String() != "struct" {
 		return
@@ -552,36 +552,42 @@ func GetStructName(myref reflect.Value, title string, names []string) (buffer st
 			if ok := checkSkipNames(myref.Type().Field(i).Name, names); ok {
 				continue
 			}
-			buffer += fmt.Sprintf("| %v ", myref.Type().Field(i).Name)
+			buffer += fmt.Sprintf("%v %v ", sep, myref.Type().Field(i).Name)
 		}
-		buffer += fmt.Sprintf("|\n")
+		buffer += fmt.Sprintf("%v\n", sep)
 	} else {
 		buffer += fmt.Sprintf("%s\n", title)
 	}
 
 	// 内部直接打印|---| 格式，不需要外部手动添加
-	for i := 0; i < myref.NumField(); i++ {
-		if ok := checkSkipNames(myref.Type().Field(i).Name, names); ok {
-			continue
+	if sep == "|" {
+		for i := 0; i < myref.NumField(); i++ {
+			if ok := checkSkipNames(myref.Type().Field(i).Name, names); ok {
+				continue
+			}
+			buffer += fmt.Sprintf("| --- ")
 		}
-		buffer += fmt.Sprintf("| --- ")
+		buffer += fmt.Sprintf("|\n")
 	}
-	buffer += fmt.Sprintf("|\n")
 	return
 }
 
 // 将 | 替换为 <br>
-func replaceI(text string) (ret string) {
+// 将 , 替换为 |
+func replaceI(text string, sep string) (ret string) {
 	// 下面2种方法都可以
 	// reg := regexp.MustCompile(`\|`)
 	// ret = reg.ReplaceAllString(text, `${1}<br/>`)
-	ret = strings.Replace(text, "|", "<br>", -1)
-	// fmt.Printf("!!! %q\n", ret)
+	if sep == "|" {
+		ret = strings.Replace(text, "|", "<br>", -1)
+	} else if sep == "," {
+		ret = strings.Replace(text, ",", "|", -1)
+	}
 	return ret
 }
 
 // 结构体的值
-func GetStructValue(myref reflect.Value, names []string) (buffer string) {
+func GetStructValue(myref reflect.Value, names []string, sep string) (buffer string) {
 	// fmt.Println("value kind", myref.Kind().String())
 	// 注：有可能传递string数组，此时没有“字段”一说，返回原本的内容
 	if myref.Kind().String() == "string" {
@@ -599,23 +605,31 @@ func GetStructValue(myref reflect.Value, names []string) (buffer string) {
 		t := myref.Field(i).Type().Name()
 		if t == "string" {
 			var str string = myref.Field(i).Interface().(string)
-			str = replaceI(str)
-			buffer += fmt.Sprintf("| %v ", str)
+			str = replaceI(str, sep)
+			buffer += fmt.Sprintf("%v %v ", sep, str)
 		} else {
-			buffer += fmt.Sprintf("| %v ", myref.Field(i).Interface())
+			buffer += fmt.Sprintf("%v %v ", sep, myref.Field(i).Interface())
 		}
 	}
-	buffer += fmt.Sprintf("|\n")
+	buffer += fmt.Sprintf("%v\n", sep)
 
 	return
 }
 
-func PrintStructTable(data interface{}, title string, skipNames ...string) {
+func PrintStructMarkdown(data interface{}, title string, skipNames ...string) {
 	var w io.Writer
 	w = os.Stdout // set to stdout
-	buffer, num := PrintStructTable2Buffer(data, title, skipNames...)
+	buffer, num := ConvertStruct2Markdown(data, title, skipNames...)
 	fmt.Fprintf(w, "total: %v  \n", num)
 	fmt.Fprintf(w, "%v\n", buffer)
+}
+
+func ConvertStruct2Markdown(data interface{}, title string, skipNames ...string) (buffer string, num int) {
+	return convertStruct(data, title, "|", skipNames...)
+}
+
+func ConvertStruct2CSV(data interface{}, title string, skipNames ...string) (buffer string, num int) {
+	return convertStruct(data, title, ",", skipNames...)
 }
 
 /*
@@ -624,7 +638,7 @@ func PrintStructTable(data interface{}, title string, skipNames ...string) {
 	 指定忽略的字段名称（即结构体字段的变量）
 	 按结构体定义的顺序列出，如自定义标题，则必须保证一致。
 */
-func PrintStructTable2Buffer(data interface{}, title string, skipNames ...string) (buffer string, num int) {
+func convertStruct(data interface{}, title, sep string, skipNames ...string) (buffer string, num int) {
 	buffer = ""
 
 	t := reflect.TypeOf(data)
@@ -646,69 +660,115 @@ func PrintStructTable2Buffer(data interface{}, title string, skipNames ...string
 	switch t.Kind() {
 	case reflect.Slice, reflect.Array:
 		num = v.Len()
-		buffer += GetStructName(v.Index(0), title, skipNamess)
+		buffer += GetStructName(v.Index(0), title, skipNamess, sep)
 		for i := 0; i < v.Len(); i++ {
-			buffer += GetStructValue(v.Index(i), skipNamess)
+			buffer += GetStructValue(v.Index(i), skipNamess, sep)
 		}
 	case reflect.Map:
 		num = v.Len()
 		iter := v.MapRange()
 		for iter.Next() {
 			if !printHead {
-				buffer += GetStructName(iter.Value(), title, skipNamess)
+				buffer += GetStructName(iter.Value(), title, skipNamess, sep)
 				printHead = true
 			}
-			buffer += GetStructValue(iter.Value(), skipNamess)
+			buffer += GetStructValue(iter.Value(), skipNamess, sep)
 		}
 	default:
 		num = 1 // 单独结构体不能用Len，单独赋值
 		if !printHead {
-			buffer += GetStructName(v, title, skipNamess)
+			buffer += GetStructName(v, title, skipNamess, sep)
 			printHead = true
 		}
-		buffer += GetStructValue(v, skipNamess)
+		buffer += GetStructValue(v, skipNamess, sep)
 	}
 
 	return
 }
 
-// 将结构体打印到文件，第一行为结构体变量 - 已不用
-func SaveByLine(filename string, structname interface{}, data interface{}) {
-	w, err := os.OpenFile(filename, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, os.ModePerm)
-	if err != nil {
-		return
-	}
-	defer w.Close()
-
-	t := reflect.TypeOf(data)
-	v := reflect.ValueOf(data)
-	if v.Len() == 0 {
-		return
-	}
-	fmt.Fprintf(w, "total: %d\n", v.Len())
-
-	var nop []string
-	title := GetStructName(v, "", nop)
-	fmt.Fprintf(w, "%v\n", title)
-
-	//fmt.Fprintf(w, "[\n")
-	switch t.Kind() {
-	case reflect.Slice, reflect.Array:
-		for i := 0; i < v.Len(); i++ {
-			fmt.Fprintf(w, "%d  %v\n", i+1, v.Index(i))
+/*
+ 将csv格式转成markdown
+ 整体看是string，但以\n分隔，再以,分隔
+ 如有标题，则为完整的markdown，否则只以|分隔
+ buf, num = ConvertStruct2Markdown(objects, "| Name | Value | Size | Guard |\n| --- | --- | --- | ++++ |")
+*/
+func ConvertCSV2Markdown(data string, title string, skipNames ...string) (buffer string, num int) {
+	buffer = ""
+	if len(title) != 0 { // 标题
+		// items := strings.Split(string(title), "\n")
+		buffer += fmt.Sprintf("%s\n", title)
+		items := strings.Split(title, "|")
+		// fmt.Println("title len: ", len(items))
+		for i := 0; i < len(items); i++ {
+			if len(items[i]) == 0 { // 如果字段为0，不纳入计算
+				continue
+			}
+			buffer += fmt.Sprintf("| --- ")
 		}
-	case reflect.Map:
-		iter := v.MapRange()
-		i := 0
-		for iter.Next() {
-			fmt.Fprintf(w, "%d %v: %v\n", i+1, iter.Key(), iter.Value())
-			i += 1
-		}
-	default:
-		fmt.Fprintf(w, "%v\n", data)
+		buffer += fmt.Sprintf("|\n")
 	}
 
+	items := strings.Split(data, "\n")
+	for i := 1; i < len(items); i++ { // 第一行为默认的标题，不用
+		item := items[i]
+		if len(item) == 0 {
+			continue
+		}
+		itemm := strings.Split(item, ",")
+		// fmt.Println("len: ", itemm, len(itemm))
+		for _, itemmm := range itemm {
+			if len(itemmm) == 0 {
+				continue
+			}
+			itemmm = replaceI(itemmm, "|")
+			buffer += fmt.Sprintf("| %v ", itemmm)
+		}
+		buffer += fmt.Sprintf("|\n")
+		if i > 10 {
+			num = i
+			break
+		}
+	}
+	return
 }
+
+// 将结构体打印到文件，第一行为结构体变量 - 已不用
+// func SaveByLine(filename string, structname interface{}, data interface{}) {
+// 	w, err := os.OpenFile(filename, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, os.ModePerm)
+// 	if err != nil {
+// 		return
+// 	}
+// 	defer w.Close()
+
+// 	t := reflect.TypeOf(data)
+// 	v := reflect.ValueOf(data)
+// 	if v.Len() == 0 {
+// 		return
+// 	}
+// 	fmt.Fprintf(w, "total: %d\n", v.Len())
+
+// 	var nop []string
+// 	title := GetStructName(v, "", nop)
+// 	fmt.Fprintf(w, "%v\n", title)
+
+// 	//fmt.Fprintf(w, "[\n")
+// 	switch t.Kind() {
+// 	case reflect.Slice, reflect.Array:
+// 		for i := 0; i < v.Len(); i++ {
+// 			fmt.Fprintf(w, "%d  %v\n", i+1, v.Index(i))
+// 		}
+// 	case reflect.Map:
+// 		iter := v.MapRange()
+// 		i := 0
+// 		for iter.Next() {
+// 			fmt.Fprintf(w, "%d %v: %v\n", i+1, iter.Key(), iter.Value())
+// 			i += 1
+// 		}
+// 	default:
+// 		fmt.Fprintf(w, "%v\n", data)
+// 	}
+
+// }
 
 //获取结构体中字段的名称及对应的类型
 func GetStructFieldName(structName interface{}) []string {
@@ -780,17 +840,22 @@ names 为不对比的字段名称
 遍历结构体，判断类型，其它可添加-->每个类型都要一一添加，是否有方便方式？
 如不同，返回不同的字段信息
 */
-func CompareStruct(data, data1 interface{}, point int, names ...string) (info string) {
+func CompareStruct(data, data1 interface{}, point int, skipname ...string) (info string) {
 	ret := false
 	info = ""
+	// 预防为空
+	if IsInterfaceNil(data) || IsInterfaceNil(data1) {
+		return
+	}
+
 	var skipNames []string
-	for _, item := range names {
+	for _, item := range skipname {
 		skipNames = append(skipNames, item)
 	}
 
 	check := func(a string, b []string) bool {
 		for _, item := range b {
-			if item == a {
+			if strings.EqualFold(item, a) {
 				return true
 			}
 		}
@@ -814,12 +879,18 @@ func CompareStruct(data, data1 interface{}, point int, names ...string) (info st
 		field := myref.Field(i)
 		field1 := reflect.ValueOf(data1).Elem().Field(i)
 		switch field.Type().Name() {
-		case "float64":
-			ret = IsFloatEqual(field.Interface().(float64), field1.Interface().(float64), mypoint)
-		case "float32":
-			ret = IsFloatEqual(float64(field.Interface().(float32)), float64(field1.Interface().(float32)), mypoint)
+		case "int8":
+			ret = field.Interface().(int8) == field1.Interface().(int8)
+		case "uint8":
+			ret = field.Interface().(uint8) == field1.Interface().(uint8)
+		case "int16":
+			ret = field.Interface().(int16) == field1.Interface().(int16)
+		case "uint16":
+			ret = field.Interface().(uint16) == field1.Interface().(uint16)
 		case "int":
 			ret = field.Interface().(int) == field1.Interface().(int)
+		case "uint":
+			ret = field.Interface().(uint) == field1.Interface().(uint)
 		case "int32":
 			ret = field.Interface().(int32) == field1.Interface().(int32)
 		case "uint32":
@@ -830,6 +901,12 @@ func CompareStruct(data, data1 interface{}, point int, names ...string) (info st
 			ret = field.Interface().(uint64) == field1.Interface().(uint64)
 		case "string":
 			ret = field.Interface().(string) == field1.Interface().(string)
+		case "float64":
+			ret = IsFloatEqual(field.Interface().(float64), field1.Interface().(float64), mypoint)
+		case "float32":
+			ret = IsFloatEqual(float64(field.Interface().(float32)), float64(field1.Interface().(float32)), mypoint)
+		case "bool":
+			ret = field.Interface().(bool) == field1.Interface().(bool)
 		default:
 			ret = false
 		}
@@ -839,6 +916,54 @@ func CompareStruct(data, data1 interface{}, point int, names ...string) (info st
 		}
 	}
 	return info
+}
+
+// 检查指定的结构体字段是否为空，仅限string类型
+func CheckStructEmpty(data interface{}, checkname ...string) (ret int) {
+	ret = 0
+
+	// 预防为空
+	if IsInterfaceNil(data) {
+		ret = 1
+		return
+	}
+
+	var checkNames []string
+	for _, item := range checkname {
+		checkNames = append(checkNames, item)
+	}
+
+	check := func(a string, b []string) bool {
+		for _, item := range b {
+			if strings.EqualFold(item, a) {
+				return true
+			}
+		}
+		return false
+	}
+
+	object := reflect.ValueOf(data)
+	myref := object.Elem()
+	// fmt.Printf("myref: %v %v\n", data, object)
+	//typeOfType := myref.Type()
+	for i := 0; i < myref.NumField(); i++ {
+		// 如果不需要对比，跳过
+		if ok := check(myref.Type().Field(i).Name, checkNames); !ok {
+			continue
+		}
+
+		field := myref.Field(i)
+		switch field.Type().Name() {
+		case "string":
+			ret1 := field.Interface().(string) == ""
+			if ret1 {
+				ret = 1
+			}
+		default:
+			ret = 0
+		}
+	}
+	return
 }
 
 // json格式化美观些
@@ -863,4 +988,12 @@ func PackJson(jsonstr string) string {
 	jsonstr = strings.Replace(jsonstr, "\n", "", -1)
 
 	return jsonstr
+}
+
+func IsInterfaceNil(i interface{}) bool {
+	vi := reflect.ValueOf(i)
+	if vi.Kind() == reflect.Ptr {
+		return vi.IsNil()
+	}
+	return false
 }
