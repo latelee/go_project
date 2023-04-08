@@ -17,6 +17,7 @@ fi
 echo "build version" $Version
 
 target=webdemo
+suffix=-arm
 
 # 版本和编译时间 TODO：找一个好的方法：
 
@@ -24,8 +25,8 @@ BuildDate=`date +'%Y-%m-%d '`
 BuildTime1=`date +'%H:%M:%S'`
 BuildTime=$BuildDate$BuildTime1
 
-time GO111MODULE=on go build -x -mod vendor -ldflags "-X '$target/cmd.BuildTime=${BuildTime}' -X '$target/cmd.Version=${Version}'" -o $target main.go || exit 1
+time GO111MODULE=on go build -x -mod vendor -ldflags "-X '$target/cmd.BuildTime=${BuildTime}' -X '$target/cmd.Version=${Version}'" -o $target$suffix main.go || exit 1
 
 mkdir -p bin
 
-cp $target bin/$target.$BuildDate
+cp $target$suffix bin/$target$suffix.$BuildDate

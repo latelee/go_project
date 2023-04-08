@@ -6,8 +6,6 @@ import (
 	"webdemo/common/conf"
 	_ "webdemo/pkg/com"
 
-	"github.com/kubeedge/beehive/pkg/core"
-	beehiveContext "github.com/kubeedge/beehive/pkg/core/context"
 	"webdemo/pkg/klog"
 
 	"net"
@@ -19,44 +17,9 @@ const (
 	TCP_RECV_LEN = 1024
 )
 
-type tcpServer struct {
-	enable bool
-	// 后可加其它字段
-}
-
-func newtcpServer(enable bool) *tcpServer {
-	return &tcpServer{
-		enable: enable,
-	}
-}
-
-func Register() {
-	core.Register(newtcpServer(conf.TcpServer.Enable))
-}
-
-func (a *tcpServer) Name() string {
-	return "tcpServer"
-}
-
-func (a *tcpServer) Group() string {
-	return "tcpServer"
-}
-
-// Enable indicates whether enable this module
-func (a *tcpServer) Enable() bool {
-	return a.enable
-}
-
-func (a *tcpServer) Start() {
-	TcpServer()
-}
-
-func (a *tcpServer) Cleanup() {
-}
-
 // TODO：添加断开的处理
 
-func TcpServer() {
+func TcpServer(args []string) {
 	IpAndPort := "0.0.0.0:" + strconv.Itoa(conf.TcpServer.Port)
 	klog.Info("tcp listen on: ", IpAndPort)
 	ln, err := net.Listen("tcp", IpAndPort)
@@ -89,10 +52,10 @@ func handleConnection(conn net.Conn) {
 
 	for {
 		select {
-		case <-beehiveContext.Done():
-			klog.Info("Stop tcp handle")
-			conn.Close()
-			return
+		// case <-beehiveContext.Done():  // todo 接收停止信号
+		// 	klog.Info("Stop tcp handle")
+		// 	conn.Close()
+		// 	return
 		default:
 		}
 		// 1.接收

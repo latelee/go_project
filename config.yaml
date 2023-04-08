@@ -7,6 +7,7 @@ modules:
   gin:
     enable: true
     port: 9000
+    website: data/dist  # html纯静态页面
   tcpserver:
     enable: false
     port: 9001

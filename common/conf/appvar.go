@@ -11,6 +11,8 @@ import (
 	//"github.com/go-xorm/xorm"
 
 	//"sync"
+	"time"
+
 	"github.com/spf13/viper"
 )
 
@@ -20,25 +22,50 @@ import (
 var Vendors []string
 var ConfDBServer string
 
-// 配置参数
-var RunningOS string
-var RunningARCH string
 var RunMode string
 var Args []string
+
+// 当前运行的操作系统 目前只处理 windows或linux
+// 注：windows 系统无法计算路径
+var RunningOS string
+var RunningArch string
+
+var AppVersion string
+var AppVersionInfo string
+
+var CfgFile string = "./config.yaml"
+
+var HostName string
+var StartTime time.Time
+
+var LogDir string = ""
 
 // 全局的配置句柄
 var Config *viper.Viper
 
 var DataFileDir string
 
-var AppVersion string
+var CurDir string
 
 // https
 var HttpsEnable bool
 var HttpsCertFile string
 var HttpsKeyFile string
 
+////////////////////////
+const DEFUALT_PORT int = 9000
+
 //////////////////////////////////////////
+
+// 命令列表，包括名称，帮助信息
+type UserCmdFunc struct {
+	Name      string
+	ShortHelp string
+	// LongHelp string
+	Func func(args []string)
+
+	NeedDb bool
+}
 
 type Gin_t struct {
 	Enable bool `json:"enable,omitempty"`
