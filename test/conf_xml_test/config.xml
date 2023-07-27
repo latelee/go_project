@@ -1,0 +1,26 @@
+<!-- xml 测试样例 -->
+<?xml version="1.0" encoding="UTF-8" ?>
+<config>
+    <info>
+        <id>000250</id>
+        <num>256</num>
+        <!-- 小节中有小节 -->
+        <person>
+            <location>梧州市岑溪市</location>
+            <email>li@latelee.cn</email>
+            <!-- 代码不解析此段 -->
+            <name>
+                <first>First</first>
+                <last>Last</last>
+            </name>
+        </person>
+    </info>
+    <server>
+        <filename back="backkkk">/tmp/log.txt</filename>
+        <url>http://172.18.18.168:9001/testing</url>
+        <!-- 空字段 -->
+        <empty></empty>
+        <!-- 注释字段，代码中有 -->
+        <!-- <time></time> -->
+    </server>
+</config>
