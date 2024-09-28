@@ -114,10 +114,13 @@ func initConfig() {
 	// 但是即使不初始化，也能使用，只是输出到终端中
 	log_dir := "log"
 	log_prefix := ""
+	log_mod := ""
 	log_level := 3
 	log_size := 10 * 1024 * 1024
-	log_type := 3
+	show_type := 2 // 1: std 2:file 3:std+file
+	log_type := 1  // 日志机制，0：旧机制  1：新形式
 	log_time := 5
+	end_type := 0
 
 	tmpstr := conf.Config.GetString("setting.log.log_dir")
 	if tmpstr != "" {
@@ -157,7 +160,8 @@ func initConfig() {
 	}
 
 	conf.LogDir = log_dir
-	klog.Init_normal(log_dir, log_prefix, log_level, log_size, log_type, log_time)
+	klog.Init_normal(log_dir, log_prefix, log_mod, log_level, log_size, show_type, log_type, end_type, log_time)
+	// Init_normal(log_dir, log_prefix, log_mod, log_level, log_size, show_type, log_type, end_type, log_time)
 
 	conf.Gin.Enable = conf.Config.GetBool("modules.gin.enable")
 

@@ -1,10 +1,8 @@
 # tmp
 testdata
 github.com1
-bin
-log
-webdemo*
-*副本*
+
+webdemo
 
 # Prerequisites
 *.d

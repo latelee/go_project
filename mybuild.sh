@@ -14,9 +14,27 @@ else
     read
 fi
 
-echo "build version" $Version
+proname=webdemo
+target=$proname-win.exe
 
-target=webdemo
+BUILD_TYPE="win"
+
+ARCH_NAME1=`uname -m`
+# check for platform
+if [ $ARCH_NAME1 = "x86_64" ]; then
+SYS=`uname -s`
+if [ $SYS = "Linux" ]; then
+BUILD_TYPE="linux"
+target=$proname
+fi
+elif [ $ARCH_NAME1 = "aarch64" ]; then
+BUILD_TYPE="arm"
+target=$proname-arm
+elif [ $ARCH_NAME1 = "loongarch64" ]; then
+BUILD_TYPE="mips"
+target=$proname-mips
+fi
+echo "build for platform:" $BUILD_TYPE " version:" $Version " output file:" $target
 
 # 版本和编译时间 TODO：找一个好的方法：
 
@@ -24,8 +42,11 @@ BuildDate=`date +'%Y-%m-%d '`
 BuildTime1=`date +'%H:%M:%S'`
 BuildTime=$BuildDate$BuildTime1
 
-time GO111MODULE=on go build -x -mod vendor -ldflags "-X '$target/cmd.BuildTime=${BuildTime}' -X '$target/cmd.Version=${Version}'" -o $target main.go || exit 1
+# -x for details
+time GO111MODULE=on go build -mod vendor -ldflags "-X '$proname/cmd.BuildTime=${BuildTime}' -X '$proname/cmd.Version=${Version}'" -o $target main.go || exit 1
 
+if [ $BUILD_TYPE != "win" ]; then
+echo "need copy" $target "to bin"
 mkdir -p bin
-
 cp $target bin/$target.$BuildDate
+fi

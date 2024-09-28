@@ -75,6 +75,11 @@ func Reverse(s string) string {
 	return string(runes[n:])
 }
 
+func RandInt(min int, max int) int {
+	r.Seed(time.Now().UnixNano())
+	return min + r.Intn(max-min)
+}
+
 // RandomCreateBytes generate random []byte by specify chars.
 func RandomCreateBytes(n int, alphabets ...byte) []byte {
 	const alphanum = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
@@ -202,15 +207,54 @@ func ToSnakeCase(str string) string {
 	return buf.String()
 }
 
+// 2字符串之间的字符串
+func GetBetweenStr(str, start, end string) string {
+	n := strings.Index(str, start)
+	if n == -1 {
+		n = 0
+	}
+	str = string([]byte(str)[n+1:])
+	m := strings.Index(str, end)
+	if m == -1 {
+		m = len(str)
+	}
+	str = string([]byte(str)[:m])
+	return str
+}
+
+// 2字符串之间的字符串 反向查找
+func GetBetweenStrR(str, start, end string) string {
+	n := strings.LastIndex(str, start)
+	if n == -1 {
+		n = 0
+	}
+	str = string([]byte(str)[n+1:])
+	m := strings.LastIndex(str, end)
+	if m == -1 {
+		m = len(str)
+	}
+	str = string([]byte(str)[:m])
+	return str
+}
+
 func Split(s string, sep string) []string {
+	if s == "" { // 防止为空
+		return []string{}
+	}
 	return strings.Split(s, sep)
 }
 
 func SplitN(s string, sep string, n int) []string {
+	if s == "" {
+		return []string{}
+	}
 	return strings.SplitN(s, sep, n)
 }
 
 func SplitTrim(s string, sep string) []string {
+	if s == "" {
+		return []string{}
+	}
 	items := strings.Split(s, sep)
 	for i := 0; i < len(items); i++ {
 		items[i] = strings.Replace(items[i], " ", "", -1)
@@ -220,6 +264,9 @@ func SplitTrim(s string, sep string) []string {
 }
 
 func SplitTrimN(s string, sep string, n int) []string {
+	if s == "" {
+		return []string{}
+	}
 	items := strings.SplitN(s, sep, n)
 	for i := 0; i < len(items); i++ {
 		items[i] = strings.Replace(items[i], " ", "", -1)
@@ -229,6 +276,9 @@ func SplitTrimN(s string, sep string, n int) []string {
 }
 
 func TrimSep(s string, cuts string) string {
+	if s == "" {
+		return ""
+	}
 	outs := s
 	tmp := ""
 	for _, item := range cuts {
@@ -239,26 +289,83 @@ func TrimSep(s string, cuts string) string {
 }
 
 func TrimpLast(s string) (ss string) {
+	if s == "" {
+		return
+	}
 	ss = s[:len(s)-1]
 	return
 }
 
+func TrimpLast1(s *string) {
+	ss := *s
+	if ss == "" {
+		return
+	}
+	*s = ss[:len(ss)-1]
+	return
+}
+
 func TrimpLastN(s string, num int) (ss string) {
+	if s == "" {
+		return
+	}
 	ss = s[:len(s)-num]
 	return
 }
 
+func TrimpLastN1(s *string, num int) {
+	if s == nil {
+		return
+	}
+	ss := *s
+	if ss == "" {
+		return
+	}
+	*s = ss[:len(ss)-num]
+	return
+}
+
 func TrimFirst(s string) (ss string) {
+	if s == "" {
+		return
+	}
 	ss = s[1:]
 	return
 }
 
+func TrimFirst1(s *string) {
+	if s == nil {
+		return
+	}
+	ss := *s
+	if ss == "" {
+		return
+	}
+	*s = ss[1:]
+	return
+}
+
 func TrimpFirstN(s string, num int) (ss string) {
+	if s == "" {
+		return
+	}
 	ss = s[num:]
 	return
 }
 
-func IsEmptyString(str string) bool {
+func TrimpFirstN1(s *string, num int) {
+	if s == nil {
+		return
+	}
+	ss := *s
+	if ss == "" {
+		return
+	}
+	*s = ss[num:]
+	return
+}
+
+func IsSpaceString(str string) bool {
 	slen := len(str)
 
 	for i := 0; i < slen; i++ {

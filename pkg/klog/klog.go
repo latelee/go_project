@@ -36,16 +36,31 @@ const (
 	fatalLog
 	numSeverity = 6
 )
+const (
+	LOG_DAYBUF = 0
+	LOG_HOUR   = 1
+)
 
 // 仅用于整齐显示等级字符串
+// var severityString = []string{
+// 	infoDebug0: " DEBUG0 ",
+// 	infoDebug1: " DEBUG1 ",
+// 	infoDebug2: " DEBUG2 ",
+// 	infoLog:    " INFO   ",
+// 	warningLog: " WARN   ",
+// 	errorLog:   " ERROR  ",
+// 	fatalLog:   " FATAL  ",
+// }
+
+// 2024.4 新方式不用对齐
 var severityString = []string{
-	infoDebug0: " DEBUG0 ",
-	infoDebug1: " DEBUG1 ",
-	infoDebug2: " DEBUG2 ",
-	infoLog:    " INFO   ",
-	warningLog: " WARN   ",
-	errorLog:   " ERROR  ",
-	fatalLog:   " FATAL  ",
+	infoDebug0: " [DEBUG0] ",
+	infoDebug1: " [DEBUG1] ",
+	infoDebug2: " [DEBUG2] ",
+	infoLog:    " [INFO] ",
+	warningLog: " [WARN] ",
+	errorLog:   " [ERROR] ",
+	fatalLog:   " [FATAL] ",
 }
 
 // OutputStats tracks the number of output lines and bytes written.
@@ -107,6 +122,13 @@ type LogParam_t struct {
 	// 日志文件前缀
 	LogNamePrefix string
 
+	// 模块名称，固定，用于显示在时间与等级之间
+	LogModeName string
+
+	LogType int // 日志机制 0：旧机制，按天按体积切割  1：新机制，按小时，不判断体积
+
+	EndType int // 结尾符标志 0：\n 1：\r\n
+
 	// 单个日志文件大小，单位：字节
 	LogFileMaxSize uint64
 
@@ -135,7 +157,7 @@ type loggingT struct {
 	// file holds writer for each of the log types.
 	file flushSyncWriter
 
-	// 当前日志日期，用于判断新日期目录
+	// 当前日志日期，用于判断新日期目录 (也用于按小时切割的判断)
 	logDate string
 
 	// 输出到终端
@@ -150,6 +172,7 @@ type loggingT struct {
 
 	// 设置定时写入文件时，首次写入，此值为true，用于在定时前也写到日志中
 	hasWritten bool
+
 	LogParam_t
 }
 
@@ -207,14 +230,15 @@ where the fields are defined as follows:
 	msg              The user-supplied message
 */
 func (l *loggingT) header(s severity, depth int) (*buffer, string, int) {
-	_, file, line, ok := runtime.Caller(3 + depth)
-	if !ok {
-		file = "???"
-		line = 1
-	} else {
-		if slash := strings.LastIndex(file, "/"); slash >= 0 {
-			path := file
-			file = path[slash+1:]
+	file := "???"
+	line := 0
+	if l.LogHeadType == 0 { // 为0表示要文件名和行号
+		ok := false
+		if _, file, line, ok = runtime.Caller(3 + depth); ok {
+			if slash := strings.LastIndex(file, "/"); slash >= 0 {
+				path := file
+				file = path[slash+1:]
+			}
 		}
 	}
 	return l.formatHeader(s, file, line), file, line
@@ -223,9 +247,9 @@ func (l *loggingT) header(s severity, depth int) (*buffer, string, int) {
 // formatHeader formats a log header using the provided file name and line number.
 func (l *loggingT) formatHeader(s severity, file string, line int) *buffer {
 	now := time.Now()
-	if line < 0 {
-		line = 0 // not a real line number, but acceptable to someDigits
-	}
+	// if line < 0 {
+	// 	line = 0 // not a real line number, but acceptable to someDigits
+	// }
 	if s > fatalLog {
 		s = infoLog // for safety.
 	}
@@ -233,7 +257,7 @@ func (l *loggingT) formatHeader(s severity, file string, line int) *buffer {
 
 	// Avoid Fprintf, for speed. The format is so simple that we can do it quickly by hand.
 	// It's worth about 3X. Fprintf is hard.
-	if l.LogHeadType == 0 {
+	if l.LogHeadType == 0 { // 这个条件较少用到
 		// 格式示例：
 		// [2022-10-23 11:28:15.130 rootCmd.go:90] xxx
 		year, month, day := now.Date()
@@ -270,29 +294,27 @@ func (l *loggingT) formatHeader(s severity, file string, line int) *buffer {
 
 		year, month, day := now.Date()
 		hour, minute, second := now.Clock()
-		buf.nDigits(4, 0, year, '0')
-		buf.tmp[4] = '-'
-		buf.twoDigits(5, int(month))
-		buf.tmp[7] = '-'
-		buf.twoDigits(8, day)
-		buf.tmp[10] = ' '
-		buf.twoDigits(11, hour)
-		buf.tmp[13] = ':'
-		buf.twoDigits(14, minute)
-		buf.tmp[16] = ':'
-		buf.twoDigits(17, second)
-		buf.tmp[19] = '.'
-		buf.threeDigits(20, now.Nanosecond()/1000/1000)
-		buf.tmp[23] = ' '
-		buf.tmp[24] = ' '
-		buf.Write(buf.tmp[:24])
+		buf.tmp[0] = '['
+		buf.nDigits(4, 1, year, '0')
+		buf.tmp[5] = '-'
+		buf.twoDigits(6, int(month))
+		buf.tmp[8] = '-'
+		buf.twoDigits(9, day)
+		buf.tmp[11] = ' '
+		buf.twoDigits(12, hour)
+		buf.tmp[14] = ':'
+		buf.twoDigits(15, minute)
+		buf.tmp[17] = ':'
+		buf.twoDigits(18, second)
+		buf.tmp[20] = ' '
+		buf.threeDigits(21, now.Nanosecond()/1000/1000)
+		buf.tmp[24] = ']'
+		buf.tmp[25] = ' '
+		buf.Write(buf.tmp[:25])
+
+		buf.WriteString(l.LogModeName)
 
 		buf.WriteString(severityString[s])
-		buf.tmp[0] = '-'
-		buf.tmp[1] = ' '
-		buf.tmp[2] = ' '
-		buf.Write(buf.tmp[:3])
-
 	}
 	return buf
 }
@@ -402,7 +424,7 @@ func (l *loggingT) output(s severity, buf *buffer, file string, line int, alsoTo
 		if l.file == nil {
 			if err := l.createFiles(s); err != nil {
 				os.Stderr.Write(data) // Make sure the message appears somewhere.
-				l.exit(err)
+				// l.exit(err) // 创建文件失败，是否退出？
 			}
 		}
 		l.file.Write(data)
@@ -500,22 +522,36 @@ func (sb *syncBuffer) Sync() error {
 */
 func (sb *syncBuffer) Write(p []byte) (n int, err error) {
 	now := time.Now()
-	// 判断时间，如果到0点，立刻切换
-	// 注：用日期作判断条件，因为是字符串比较，因此带上目录，方便传递到下一函数
-	// sb.logger.logDate 在前面的函数已创建
-	datestr := fmt.Sprintf("%v/%04d-%02d/%02d", sb.logger.logDir, now.Year(), now.Month(), now.Day())
-	if datestr > sb.logger.logDate {
-		// fmt.Println("-----!!!! rotate file true  may be new day", datestr, sb.logger.logDate)
-		if err := sb.rotateFile(datestr, now, true); err != nil {
-			sb.logger.exit(err)
+
+	if sb.logger.LogType == LOG_DAYBUF {
+		// 判断时间，如果到0点，立刻切换
+		// 注：用日期作判断条件，因为是字符串比较，因此带上目录，方便传递到下一函数
+		// sb.logger.logDate 在前面的函数已创建
+		datestr := fmt.Sprintf("%v/%04d-%02d/%02d", sb.logger.logDir, now.Year(), now.Month(), now.Day())
+
+		if datestr > sb.logger.logDate {
+			// fmt.Println("-----!!!! rotate file true  may be new day", datestr, sb.logger.logDate)
+			if err := sb.rotateFileBuffer(datestr, now, true); err != nil {
+				sb.logger.exit(err)
+			}
+			sb.logger.logDate = datestr
 		}
-		sb.logger.logDate = datestr
-	}
-	// 如果超过大小，也切换
-	if sb.nbytes+uint64(len(p)) >= sb.maxbytes {
-		// fmt.Println("------------------- rotate file max...")
-		if err := sb.rotateFile(datestr, now, false); err != nil {
-			sb.logger.exit(err)
+		// 如果超过大小，也切换
+		if sb.nbytes+uint64(len(p)) >= sb.maxbytes {
+			// fmt.Println("------------------- rotate file max...")
+			if err := sb.rotateFileBuffer(datestr, now, false); err != nil {
+				sb.logger.exit(err)
+			}
+		}
+	} else if sb.logger.LogType == LOG_HOUR {
+		// 与上相同，但是是按小时切换，无体积
+		datestr := fmt.Sprintf("%v/%04d%02d%02d%02d", sb.logger.logDir, now.Year(), now.Month(), now.Day(), now.Hour())
+
+		if datestr > sb.logger.logDate {
+			if err := sb.rotateFileHour(datestr, now, true); err != nil {
+				sb.logger.exit(err)
+			}
+			sb.logger.logDate = datestr
 		}
 	}
 	n, err = sb.Writer.Write(p)
@@ -528,20 +564,16 @@ func (sb *syncBuffer) Write(p []byte) (n int, err error) {
 
 var log_file_idx int = 1
 
-// rotateFile closes the syncBuffer's file and starts a new one.
+// rotateFileBuffer closes the syncBuffer's file and starts a new one.
 // The startup argument indicates whether this is the initial startup of klog.
 // If startup is true, existing files are opened for appending instead of truncated.
-func (sb *syncBuffer) rotateFile(dir string, now time.Time, startup bool) error {
+// 根据条件按在或体积大小切割日志文件
+func (sb *syncBuffer) rotateFileBuffer(dir string, now time.Time, startup bool) error {
 	if sb.file != nil {
 		sb.Flush()
 		sb.file.Close()
 	}
 
-	// now := time.Now()
-	// if dir == "" {
-	// 	dir = fmt.Sprintf("%v/%04d-%02d/%02d", sb.logger.logDir, now.Year(), now.Month(), now.Day())
-
-	// }
 	// 创建日期目录
 	mkDir(dir)
 
@@ -556,6 +588,7 @@ func (sb *syncBuffer) rotateFile(dir string, now time.Time, startup bool) error 
 	tfile := ""
 
 	// 启动时(新目录，或新启动)，读已有日志文件，得大小，当成已有的
+	// 如存在xxx.1文件，如体积未达到，追加到该文件，否则用新文件，为.2，后依顺序建文件
 	if startup == true {
 		log_file_idx1 := 1
 		files, err := getFileListByPrefix(dir, prename, true, 1)
@@ -601,7 +634,49 @@ func (sb *syncBuffer) rotateFile(dir string, now time.Time, startup bool) error 
 	sb.Writer = bufio.NewWriterSize(sb.file, bufferSize)
 
 	return nil
+}
 
+// 同 rotateFileBuffer，但按小时切割文件
+func (sb *syncBuffer) rotateFileHour(dir string, now time.Time, startup bool) error {
+	if sb.file != nil {
+		sb.Flush()
+		sb.file.Close()
+	}
+
+	// 日志名称  小时加1，即序号为01者，表示00时开始的日志
+	// 格式：<前缀>yyyymmdd_hh.log
+	logname := fmt.Sprintf("%s%04d%02d%02d_%02d.log",
+		sb.logger.LogNamePrefix,
+		now.Year(),
+		now.Month(),
+		now.Day(),
+		now.Hour()+1)
+
+	// 新目录，去掉小时
+	newdir := ""
+	if len(dir) > 4 { // in case panic
+		newdir = dir[0 : len(dir)-2]
+	}
+
+	// 创建日期目录
+	mkDir(newdir)
+
+	// 日志文件完整路径
+	alogname := filepath.Join(newdir, logname)
+
+	// 启动时(新目录，或新启动)，读已有日志文件，得大小，当成已有的
+	// 直接获取大小，如能获取到，用之，相当追加，如否，则为0，新文件
+	sb.nbytes, _ = fileSize(alogname)
+
+	var err error
+	sb.file, _, err = create(now, startup, alogname)
+	if err != nil {
+		return err
+	}
+
+	sb.Writer = bufio.NewWriterSize(sb.file, bufferSize)
+
+	return nil
 }
 
 // bufferSize sizes the buffer associated with each log file. It's large
@@ -613,19 +688,33 @@ const bufferSize = 256 * 1024
 // l.mu is held.
 func (l *loggingT) createFiles(sev severity) error {
 	now := time.Now()
-	dir := fmt.Sprintf("%v/%04d-%02d/%02d", l.logDir, now.Year(), now.Month(), now.Day())
 
-	// 首次肯定会到此函数，所以会首先创建
-	l.logDate = dir
 	sb := &syncBuffer{
 		logger:   l,
 		maxbytes: l.LogFileMaxSize,
 	}
-	// fmt.Println("============ rotate file true")
-	if err := sb.rotateFile(dir, now, true); err != nil {
-		return err
-	}
 	l.file = sb
+
+	if l.LogType == LOG_DAYBUF {
+		dir := fmt.Sprintf("%v/%04d-%02d/%02d", l.logDir, now.Year(), now.Month(), now.Day())
+
+		// 首次肯定会到此函数，所以会首先创建
+		l.logDate = dir
+
+		// fmt.Println("============ rotate file true")
+		if err := sb.rotateFileBuffer(dir, now, true); err != nil {
+			return err
+		}
+	} else if l.LogType == LOG_HOUR {
+		// 按小时
+		dir := fmt.Sprintf("%v/%04d%02d%02d%02d", l.logDir, now.Year(), now.Month(), now.Day(), now.Hour())
+
+		// 首次肯定会到此函数，所以会首先创建
+		l.logDate = dir
+		if err := sb.rotateFileHour(dir, now, true); err != nil {
+			return err
+		}
+	}
 
 	return nil
 }

@@ -7,7 +7,6 @@ import (
 	"webdemo/pkg/com"
 	"webdemo/pkg/klog"
 
-	cli "webdemo/module/gin/post_client"
 	//"net/http"
 	"github.com/gin-gonic/gin"
 )
@@ -48,7 +47,7 @@ func (this *GinServer_t) initBusy() *gin.Engine {
 		return runWebSimple()
 	} else if this.webtype == WEB_CLINET { // 客户端，目前没有用到
 		klog.Println("Running for post client...")
-		return cli.Client()
+		// return cli.Client()
 	} else { // 全部，含前后端
 		klog.Println("Running for post test...")
 		return runAll()

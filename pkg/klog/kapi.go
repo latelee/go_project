@@ -20,25 +20,31 @@ func (l *loggingT) println(s severity, args ...interface{}) {
 
 	buf, file, line := l.header(s, 0)
 	fmt.Fprintln(buf, args...)
-	l.output(s, buf, file, line, false)
-}
-
-func (l *loggingT) print(s severity, args ...interface{}) {
-	l.printDepth(s, 1, args...)
-}
-
-func (l *loggingT) printDepth(s severity, depth int, args ...interface{}) {
-	if s < l.LogLevel {
-		return
-	}
-	buf, file, line := l.header(s, depth)
-	fmt.Fprint(buf, args...)
-	if buf.Bytes()[buf.Len()-1] != '\n' {
+	// 如需\r\n结尾，替换之，下同
+	if l.EndType == 1 {
+		buf.Bytes()[buf.Len()-1] = '\r'
 		buf.WriteByte('\n')
 	}
 	l.output(s, buf, file, line, false)
 }
 
+// func (l *loggingT) print(s severity, args ...interface{}) {
+// 	l.printDepth(s, 1, args...)
+// }
+
+// func (l *loggingT) printDepth(s severity, depth int, args ...interface{}) {
+// 	if s < l.LogLevel {
+// 		return
+// 	}
+// 	buf, file, line := l.header(s, depth)
+// 	fmt.Fprint(buf, args...)
+// 	if buf.Bytes()[buf.Len()-1] != '\n' {
+// 		buf.WriteByte('\n')
+// 	}
+// 	l.output(s, buf, file, line, false)
+// }
+
+// TODO 换行用\r\n
 func (l *loggingT) printf(s severity, format string, args ...interface{}) {
 	if s < l.LogLevel {
 		return
@@ -48,28 +54,38 @@ func (l *loggingT) printf(s severity, format string, args ...interface{}) {
 	if buf.Bytes()[buf.Len()-1] != '\n' {
 		buf.WriteByte('\n')
 	}
+
+	if l.EndType == 1 {
+		if buf.Bytes()[buf.Len()-1] != '\n' {
+			buf.Bytes()[buf.Len()-1] = '\r'
+			buf.WriteByte('\n')
+		}
+	}
+	// if buf.Bytes()[buf.Len()-1] != '\n' {
+	// 	buf.WriteByte('\n')
+	// }
 	l.output(s, buf, file, line, false)
 }
 
 // printWithFileLine behaves like print but uses the provided file and line number.  If
 // alsoLogToStderr is true, the log message always appears on standard error; it
 // will also appear in the log file unless --logtostderr is set.
-func (l *loggingT) printWithFileLine(s severity, file string, line int, alsoToStderr bool, args ...interface{}) {
-	if s < l.LogLevel {
-		return
-	}
-	buf := l.formatHeader(s, file, line)
-	fmt.Fprint(buf, args...)
-	if buf.Bytes()[buf.Len()-1] != '\n' {
-		buf.WriteByte('\n')
-	}
-	l.output(s, buf, file, line, alsoToStderr)
-}
+// func (l *loggingT) printWithFileLine(s severity, file string, line int, alsoToStderr bool, args ...interface{}) {
+// 	if s < l.LogLevel {
+// 		return
+// 	}
+// 	buf := l.formatHeader(s, file, line)
+// 	fmt.Fprint(buf, args...)
+// 	if buf.Bytes()[buf.Len()-1] != '\n' {
+// 		buf.WriteByte('\n')
+// 	}
+// 	l.output(s, buf, file, line, alsoToStderr)
+// }
 
 ///////// 对外接口
-func DebugL(args ...interface{}) {
-	logging.print(infoDebug0, args...)
-}
+// func DebugL(args ...interface{}) {
+// 	logging.print(infoDebug0, args...)
+// }
 
 func DebugLln(args ...interface{}) {
 	logging.println(infoDebug0, args...)
@@ -79,9 +95,9 @@ func DebugLf(format string, args ...interface{}) {
 	logging.printf(infoDebug0, format, args...)
 }
 
-func DebugM(args ...interface{}) {
-	logging.print(infoDebug1, args...)
-}
+// func DebugM(args ...interface{}) {
+// 	logging.print(infoDebug1, args...)
+// }
 
 func DebugMln(args ...interface{}) {
 	logging.println(infoDebug1, args...)
@@ -91,9 +107,9 @@ func DebugMf(format string, args ...interface{}) {
 	logging.printf(infoDebug1, format, args...)
 }
 
-func DebugH(args ...interface{}) {
-	logging.print(infoDebug2, args...)
-}
+// func DebugH(args ...interface{}) {
+// 	logging.print(infoDebug2, args...)
+// }
 
 func DebugHln(args ...interface{}) {
 	logging.println(infoDebug2, args...)
@@ -105,9 +121,9 @@ func DebugHf(format string, args ...interface{}) {
 
 // Info logs to the INFO level.
 // Arguments are handled in the manner of fmt.Print; a newline is appended if missing.
-func Info(args ...interface{}) {
-	logging.print(infoLog, args...)
-}
+// func Info(args ...interface{}) {
+// 	logging.print(infoLog, args...)
+// }
 
 // Infoln logs to the INFO level.
 // Arguments are handled in the manner of fmt.Println; a newline is always appended.
@@ -123,9 +139,9 @@ func Infof(format string, args ...interface{}) {
 
 // Warn logs to the WARN level
 // Arguments are handled in the manner of fmt.Print; a newline is appended if missing.
-func Warn(args ...interface{}) {
-	logging.print(warningLog, args...)
-}
+// func Warn(args ...interface{}) {
+// 	logging.print(warningLog, args...)
+// }
 
 // Warnln logs to the WARN level
 // Arguments are handled in the manner of fmt.Println; a newline is always appended.
@@ -141,9 +157,9 @@ func Warnf(format string, args ...interface{}) {
 
 // Error logs to the ERROR level
 // Arguments are handled in the manner of fmt.Print; a newline is appended if missing.
-func Error(args ...interface{}) {
-	logging.print(errorLog, args...)
-}
+// func Error(args ...interface{}) {
+// 	logging.print(errorLog, args...)
+// }
 
 // Errorln logs to the ERROR level
 // Arguments are handled in the manner of fmt.Println; a newline is always appended.
@@ -160,9 +176,9 @@ func Errorf(format string, args ...interface{}) {
 // Fatal logs to the FATAL, ERROR, WARNING, and INFO logs,
 // including a stack trace of all running goroutines, then calls os.Exit(255).
 // Arguments are handled in the manner of fmt.Print; a newline is appended if missing.
-func Fatal(args ...interface{}) {
-	logging.print(fatalLog, args...)
-}
+// func Fatal(args ...interface{}) {
+// 	logging.print(fatalLog, args...)
+// }
 
 // Fatalln logs to the FATAL, ERROR, WARNING, and INFO logs,
 // including a stack trace of all running goroutines, then calls os.Exit(255).
@@ -179,9 +195,9 @@ func Fatalf(format string, args ...interface{}) {
 }
 
 // 用Info等级
-func Print(args ...interface{}) {
-	logging.print(infoLog, args...)
-}
+// func Print(args ...interface{}) {
+// 	logging.print(infoLog, args...)
+// }
 
 func Println(args ...interface{}) {
 	logging.println(infoLog, args...)
@@ -212,16 +228,19 @@ func FlushLog() {
 
 /*
 封装初始化函数
-dirname - 目录
-prefix - 日志文件前缀
+dirname - 日志存放目录
+fileprefix - 日志文件前缀
+modname - 模块名称
 level - 等级数值（0开始，依次是DEBUG0、DEBUG1、DEBUG2、INFO、WARN、ERROR）
 logsize - 日志大小
 showtype - 输出方式 1：只到终端，2：只到文件 3：终端+文件
+logtype - 日志保存类型 0：原方式，按天切割，大小按10MB切割。1：新方式，按小时切割，不考虑体积。两者日志格式不同。
 loginterval - 日志写文件间隔 为0即时写
+
 
 针对全局的初始化，即整个工程只有一个日志实例
 */
-func Init_normal(dirname, prefix string, level int, logsize int, showtype int, loginterval int) {
+func Init_normal(dirname, fileprefix, modname string, level, logsize, showtype, logtype, endtype, loginterval int) {
 	logging = &loggingT{}
 
 	logging.LogLevel = severity(level)
@@ -251,9 +270,21 @@ func Init_normal(dirname, prefix string, level int, logsize int, showtype int, l
 	if logsize > 0 {
 		logging.LogFileMaxSize = uint64(logsize)
 	}
-	if prefix != "" {
-		logging.LogNamePrefix = prefix+"."
+	if fileprefix != "" {
+		logging.LogNamePrefix = fileprefix
 	}
+	if modname != "" {
+		logging.LogModeName = " [" + modname + "]"
+	}
+	if logtype == 1 {
+		logging.LogType = LOG_HOUR
+		logging.LogNamePrefix += "_"
+	} else {
+		logging.LogType = LOG_DAYBUF
+		logging.LogNamePrefix += "."
+	}
+
+	logging.EndType = endtype
 	logging.LogHeadType = 1
 	logging.LogFlushInterval = loginterval
 
@@ -306,7 +337,7 @@ func NewKlog(t LogParam_t) *LoggingT {
 	}
 	foo.LogNamePrefix = t.LogNamePrefix
 	if foo.LogNamePrefix == "" {
-		foo.LogNamePrefix = filepath.Base(os.Args[0])+"."
+		foo.LogNamePrefix = filepath.Base(os.Args[0]) + "."
 	}
 	if t.LogHeadType == 0 {
 		foo.LogHeadType = 1

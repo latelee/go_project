@@ -29,7 +29,8 @@ func NewCmd() *cobra.Command {
 			if len(args) == 0 { // 当没有参数时，使用默认的Help
 				obj := web.NewGinServer()
 				// obj.Start(web.WEB_WEBSITE)
-				obj.RunStaticWebSite()
+				obj.RunAll()
+				// obj.RunStaticWebSite()
 			}
 
 			return nil
